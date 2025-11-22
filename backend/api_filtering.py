@@ -10,31 +10,21 @@ def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
 
     query_struct = {
         # --- ESTILO DE VIDA ---
-        "restaurants": ['node["amenity"="restaurant"](area.searchArea);'],
-        "parks": ['node["leisure"="park"](area.searchArea);'],
-        "cultural": ['node["amenity"~"theatre|library|museum"](area.searchArea);'],
-        "gyms": [
-            'node["leisure"="fitness_centre"](area.searchArea);',
-            'node["sport"="fitness"](area.searchArea);'
-        ],
-        "shops": ['node["shop"](area.searchArea);'],
+        "restaurants": 'node["amenity"="restaurant"](area.searchArea);',
+        "parks": 'node["leisure"="park"](area.searchArea);',
+        "cultural": 'node["amenity"~"theatre|library|museum"](area.searchArea);',
+        "gyms": 'node["leisure"="fitness_centre"](area.searchArea); \n node["sport"="fitness"](area.searchArea);',
+        "shops": 'node["shop"](area.searchArea);',
 
         # --- MOVILIDAD Y TRANSPORTE ---
-        "sidewalks": ['way["sidewalk"="both"](area.searchArea);'],
-        "public_transport": [
-            'node["bus"="yes"](area.searchArea);',
-            'node["train"="yes"](area.searchArea);'
-        ],
-        "accessibility": [
-            'node["wheelchair"="yes"](area.searchArea);',
-            'way["wheelchair"="yes"](area.searchArea);',
-            'way["sidewalk"](area.searchArea);'
-        ]
+        "sidewalks": 'way["sidewalk"="both"](area.searchArea);',
+        "public_transport": 'node["bus"="yes"](area.searchArea)', 'node["train"="yes"](area.searchArea)'
+        "accessibility": 'node["wheelchair"="yes"](area.searchArea); \n way["wheelchair"="yes"](area.searchArea); \n way["sidewalk"](area.searchArea);'
     }
 
-    for feature, block_list in query_struct.items():
-        if filters.get(feature):
-            blocks.extend(block_list)
+    for feature in query_struct.keys():
+        if filters[feature]:
+            blocks.append(query_struct[feature])
 
     # Si no hay ningún bloque activo
     if not blocks:
@@ -62,11 +52,14 @@ def call_overpass(query ):
 
 
 #2- PONDERAR LAS CARACTERÍSTICAS 
+#Haremos un rango normalizado desde 0.2 - 1.0 
+
+
 
 
 ########################## TESTING AND DEBUGGING ##########################
 
-user_priority= {"estilo_de_vida":1 , "seguridad" :2, "movilidad":3, "vivienda":4, "habitatge":5}
+user_priority= {"estilo_de_vida":1 , "seguridad" :2, "movilidad":3, "vivienda":4, "habitatge":5} 
 
 user_filters = {
     "restaurants": True,
