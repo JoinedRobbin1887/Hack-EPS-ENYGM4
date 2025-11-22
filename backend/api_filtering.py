@@ -1,4 +1,7 @@
 import requests
+from sodapy import Socrata
+import pandas as pd
+import os
 
 
 #1 - PRIMERA FILTRACIÓN NO PONDERADA - datos fiables
@@ -81,6 +84,11 @@ def ponder_characteristics(filters: dict, data):
             scores[k] += min(related, 5) 
 
     return scores
+
+# 3- REDUCIMOS EL SCOPE - CON CARACTERISTICAS MÁS ESPECIFICAS ------------ SEGURIDAD --------------
+
+
+
 
 ########################## TESTING AND DEBUGGING ##########################
 
