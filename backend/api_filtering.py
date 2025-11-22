@@ -19,6 +19,16 @@ def build_overpass_query(filters, city="Los Angeles"):
     if filters.get("shops"):
         blocks.append('node["shop"](area.searchArea);')
 
+     # --- MOVILIDAD Y TRANSPORTE ---
+    if filters.get("sidewalks"):
+        blocks.append('way["sidewalk"="both"](area.searchArea);')
+    if filters.get("public_transport"):
+        blocks.append('node["bus"="yes"](area.searchArea);')
+        blocks.append('node["train"="yes"](area.searchArea);')
+    if filters.get("accessibility"):
+        blocks.append('node["wheelchair"="yes"](area.searchArea);')
+        blocks.append('way["wheelchair"="yes"](area.searchArea);')
+        blocks.append('way["sidewalk"](area.searchArea);')
 
     # Si no hay ningún bloque activo
     if not blocks:
@@ -28,7 +38,7 @@ def build_overpass_query(filters, city="Los Angeles"):
     blocks_joined = "\n        ".join(blocks)
     query = f"""
         [out:json][timeout:50];
-        area["name"="{city}"]["boundary"="administrative"]->.searchArea;
+        area["name"="{city}"]->.searchArea;
         (
                 {blocks_joined}
         );
@@ -53,14 +63,9 @@ user_filters = {
     "cultural": False,
     "gyms": True,
     "shops": None,
-    "footways": True,
     "sidewalks": True,
     "public_transport": True,
-    "cycleways": True,
-    "motorways": False,
-    "accessibility": True,
-    "apartments": True,
-    "houses": False
+    "accessibility": True
 }
 
 city = "Los Angeles"
@@ -70,4 +75,6 @@ data = call_overpass(query)
 
 print("Query generada:")
 print(query)
-print("\nNúmero de elementos encontrados:", len(data["elements"]))
+print("\nPrimeros 3 elementos encontrados:")
+for i, elem in enumerate(data["elements"][:3], start=1):
+    print(f"{i}: {elem}")
