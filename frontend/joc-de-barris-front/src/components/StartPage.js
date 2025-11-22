@@ -1,4 +1,3 @@
-// src/components/StartPage.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -70,9 +69,10 @@ export function StartPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-cornflower-blue-100 p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Configura tus preferencias</h1>
+      <h1 className="text-4xl font-bold mb-10 text-center text-cornflower-blue-800 mt-2">SELECT YOUR PREFERENCES</h1>
 
-      <div className="w-full max-w-4xl">
+      {/* Amplada corregida a max-w-6xl per a targetes amples */}
+      <div className="w-full max-w-10xl"> 
         {categoryOrder.map((categoryKey, index) => (
           <div
             key={categoryKey}
@@ -88,22 +88,39 @@ export function StartPage() {
                 : 'cursor-grab'
             } ${
               dragOverIndex === index && draggedIndex !== index
-                ? 'border-2 border-cornflower-blue-500 rounded-lg'
+                ? 'border-2 border-cornflower-blue-400 rounded-lg'
                 : ''
             }`}
             style={{ cursor: draggedIndex === index ? 'grabbing' : 'grab' }}
           >
-            {categoryComponents[categoryKey]}
+            {/* Contenidor RELATIU per posicionar el número de prioritat */}
+            <div className="relative">
+                {/* Visualització de la Prioritat (Índex + 1) */}
+                <div className="absolute -top-4 -right-2 bg-cornflower-blue-800 text-white font-extrabold text-xl w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-lg z-10">
+                    {index + 1}
+                </div>
+                
+                {/* La component de la categoria (la targeta) */}
+                {categoryComponents[categoryKey]}
+            </div>
+
           </div>
         ))}
       </div>
 
-      {/* BotÃ³n Volver */}
-      <Link to="/">
-        <button className="bg-cornflower-blue-400 hover:bg-cornflower-blue-600 text-white text-2xl font-bold py-3 px-6 rounded-full shadow-lg mt-6 transition duration-300">
-          Volver
-        </button>
-      </Link>
+      {/* Botons Go Back i Next */}
+      <div className="flex space-x-4">
+        <Link to="/">
+          <button className="bg-cornflower-blue-800 hover:bg-cornflower-blue-600 text-white text-2xl font-bold py-3 px-6 rounded-full shadow-lg mt-6 transition duration-300">
+            Go back
+          </button>
+        </Link>
+        <Link to="/">
+          <button className="bg-cornflower-blue-800 hover:bg-cornflower-blue-600 text-white text-2xl font-bold py-3 px-6 rounded-full shadow-lg mt-6 transition duration-300">
+            Next
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }
