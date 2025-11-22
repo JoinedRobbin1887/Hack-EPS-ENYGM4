@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from ClasesFormularis import FormSeguridad
+from schemas.forms.FormSeguretat import seguridad
 
 router = APIRouter(prefix="/seguritat")
 
@@ -8,5 +8,5 @@ router = APIRouter(prefix="/seguritat")
 
 
 @router.post("/")
-def catch_form(form: FormSeguridad):
+def catch_form(form: seguridad):
     return form

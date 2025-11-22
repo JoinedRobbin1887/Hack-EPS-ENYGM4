@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from ClasesFormularis import FormDem
+from schemas.forms.FormDemografia import demografia
 
 router = APIRouter(prefix="/demografia")
 
 
 @router.post("/")
-def catch_form(form: FormDem):
+def catch_form(form: demografia):
     return form

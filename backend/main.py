@@ -10,7 +10,3 @@ app.include_router(Habitatge.router)
 app.include_router(Movilitat.router)
 app.include_router(Seguridad.router)
 
-
-@app.get("/")
-def main():
-    ...
