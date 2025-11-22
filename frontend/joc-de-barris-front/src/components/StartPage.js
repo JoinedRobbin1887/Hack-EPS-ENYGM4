@@ -117,7 +117,7 @@ export function StartPage() {
         </Link>
         <Link to="/">
           <button className="bg-cornflower-blue-800 hover:bg-cornflower-blue-600 text-white text-2xl font-bold py-3 px-6 rounded-full shadow-lg mt-6 transition duration-300">
-            Next
+            Submit
           </button>
         </Link>
       </div>
