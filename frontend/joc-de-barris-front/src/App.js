@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import Button from './components/Button';
+import {Button} from './components/Button';
 
 function App() {
   return (
@@ -10,7 +10,10 @@ function App() {
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
-        <Button className="px-4 py-2 mt-4">Click Me</Button>
+
+        <Button className="mt-5 p-3">
+          Mi Primer Botón
+        </Button>
         <a
           className="App-link "
           href="https://reactjs.org"
