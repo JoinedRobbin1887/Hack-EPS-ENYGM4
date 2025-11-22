@@ -1,6 +1,8 @@
 import requests
 
 
+#1 - PRIMERA FILTRACIÓN NO PONDERADA - datos fiables
+
 #Construimos la query según los filtros de la ciudad
 def build_overpass_query(filters, city="Los Angeles"):
     
@@ -55,8 +57,12 @@ def call_overpass(query):
     return response.json()
 
 
+#2- PONDERAR LAS CARACTERÍSTICAS 
+
+
 ########################## TESTING AND DEBUGGING ##########################
 
+user_priority= {}
 user_filters = {
     "restaurants": True,
     "parks": True,
