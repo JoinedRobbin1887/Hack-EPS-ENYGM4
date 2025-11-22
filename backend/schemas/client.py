@@ -9,5 +9,5 @@ class Client(BaseModel):
     def validate_edad(edad):
         if edad < 1:
             raise ValueError("ahsjdvj")
-        return edad
+        return
     """
