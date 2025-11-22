@@ -1,4 +1,7 @@
 import requests
+from sodapy import Socrata
+import pandas as pd
+import os
 
 
 #1 - PRIMERA FILTRACIÓN NO PONDERADA - datos fiables
@@ -43,27 +46,27 @@ def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
     return query
 
 #llamamos a la api
-def call_overpass(query ):
+def call_overpass(query):
     if not query:
         return None
     url = "https://overpass-api.de/api/interpreter"
-    response = requests.post(url, data={"data": query})
+    response = requests.post(url, data={"data": query}) ##################### RESPUESTA API ############################# 
     return response.json()
 
 
 #2- PONDERAR LAS CARACTERÍSTICAS 
 #Haremos un rango normalizado desde 0.2 - 1.0 
 
-def normalize_weights(user_priority, min_w=0.2, max_w=1.0): #obtenemos los pesos por prioridades
+def normalize_weights(user_priority:dict, min_w=0.2, max_w=1.0): #obtenemos los pesos por prioridades
     min_p = min(user_priority.values())
     max_p = max(user_priority.values())
 
     weights = {}
     for key, p in user_priority.items():
-        norm = (p - min_p) / (max_p - min_p)
+        norm = (p - min_p) / (max_p - min_p) #recorremos cada prioridad y lo ponemos entre un rango entre 0-1
         weights[key] = min_w + norm * (max_w - min_w)
 
-    return weights
+    return weights #diccionario de pesos numericos listo para multiplicar scores ej prioridad 1= 0.2
 
 
 def ponder_characteristics(filters: dict, data):
@@ -76,17 +79,25 @@ def ponder_characteristics(filters: dict, data):
 
     for k, enabled in filters.items():
         if enabled:
-            scores[k] += 1
+            scores[k] += 1 #si es true sumamos
             related = sum(1 for e in elements if k in str(e))
-            scores[k] += min(related, 5)
+            scores[k] += min(related, 5) 
 
     return scores
+
+# 3- REDUCIMOS EL SCOPE - CON CARACTERISTICAS MÁS ESPECIFICAS ------------ SEGURIDAD --------------
+
 
 
 
 ########################## TESTING AND DEBUGGING ##########################
 
-user_priority= {"estilo_de_vida":1 , "seguridad" :2, "movilidad":3, "vivienda":4, "habitatge":5} 
+user_priority = {
+    "estilo_de_vida": 1,  
+    "movilidad": 3,
+    "vivienda": 4,
+    "habitatge": 5
+}
 
 user_filters = {
     "restaurants": True,
@@ -106,8 +117,27 @@ data = call_overpass(query)
 
 print("Query generada:")
 print(query)
+
 print("\nPrimeros 3 elementos encontrados:")
 for i, elem in enumerate(data["elements"][:3], start=1):
     print(f"{i}: {elem}")
-    
-    
+
+weights = normalize_weights(user_priority)
+print("\nPesos normalizados según prioridades:")
+print(weights)
+
+scores = ponder_characteristics(user_filters, data)
+print("\nScores crudos por característica:")
+print(scores)
+
+final_scores = {k: scores[k]*weights.get(k,1) for k in scores}
+print("\nScores ponderados por prioridad del usuario:")
+print(final_scores)
+
+ranked = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
+print("\nRanking de características según el barrio:")
+for cat, score in ranked:
+    print(f"{cat}: {score}")
+
+overall_score = sum(final_scores.values())
+print("\nScore total de la ciudad:", overall_score)
