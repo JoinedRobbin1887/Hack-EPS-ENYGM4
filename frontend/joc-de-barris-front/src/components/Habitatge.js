@@ -20,7 +20,7 @@ export function Habitatge() {
         
         <PreferenceSelector 
           label="RENT PRICES" 
-          options={["HIGH", "MEDIUM", "LOW"]} 
+          options={["1600$", "2500$", "4100$"]} 
           selected={precios} 
           onChange={setPrecios} 
         />
