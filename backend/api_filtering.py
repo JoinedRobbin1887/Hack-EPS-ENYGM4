@@ -1,7 +1,7 @@
 import requests
-from sodapy import Socrata
 import pandas as pd
 import os
+import json
 
 
 #1 - PRIMERA FILTRACIÓN NO PONDERADA - datos fiables
@@ -46,12 +46,24 @@ def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
     return query
 
 #llamamos a la api
-def call_overpass(query):
+def call_overpass(query, output_file="overpass_response.json"):
     if not query:
         return None
+
     url = "https://overpass-api.de/api/interpreter"
-    response = requests.post(url, data={"data": query}) ##################### RESPUESTA API ############################# 
-    return response.json()
+    response = requests.post(url, data={"data": query})
+    
+    if response.status_code != 200:
+        print("Error en la API:", response.status_code)
+        return None
+
+    data = response.json()
+
+    # Guardar en JSON
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+    return data
 
 
 #2- PONDERAR LAS CARACTERÍSTICAS 
@@ -87,7 +99,14 @@ def ponder_characteristics(filters: dict, data):
 
 # 3- REDUCIMOS EL SCOPE - CON CARACTERISTICAS MÁS ESPECIFICAS ------------ SEGURIDAD --------------
 
-
+def security_scope (data:list):
+    security_db= pd.read_csv("security_db_scope.csv").sample(n=5000)
+    
+    location_matching= security_db["LOCATION"]
+    
+    raise NotImplementedError ("NOT YET")
+    
+    
 
 
 ########################## TESTING AND DEBUGGING ##########################
