@@ -7,19 +7,19 @@ import requests
 def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
 
     blocks = []
-
+    
     query_struct = {
         # --- ESTILO DE VIDA ---
         "restaurants": 'node["amenity"="restaurant"](area.searchArea);',
         "parks": 'node["leisure"="park"](area.searchArea);',
         "cultural": 'node["amenity"~"theatre|library|museum"](area.searchArea);',
-        "gyms": 'node["leisure"="fitness_centre"](area.searchArea); \n node["sport"="fitness"](area.searchArea);',
+        "gyms": 'node["leisure"="fitness_centre"](area.searchArea);\n        node["sport"="fitness"](area.searchArea);',
         "shops": 'node["shop"](area.searchArea);',
 
         # --- MOVILIDAD Y TRANSPORTE ---
         "sidewalks": 'way["sidewalk"="both"](area.searchArea);',
-        "public_transport": 'node["bus"="yes"](area.searchArea)', 'node["train"="yes"](area.searchArea)'
-        "accessibility": 'node["wheelchair"="yes"](area.searchArea); \n way["wheelchair"="yes"](area.searchArea); \n way["sidewalk"](area.searchArea);'
+        "public_transport": 'node["bus"="yes"](area.searchArea);\n        node["train"="yes"](area.searchArea);',
+        "accessibility": 'node["wheelchair"="yes"](area.searchArea);\n        way["wheelchair"="yes"](area.searchArea);\n        way["sidewalk"](area.searchArea);'
     }
 
     for feature in query_struct.keys():
@@ -54,6 +54,33 @@ def call_overpass(query ):
 #2- PONDERAR LAS CARACTERÍSTICAS 
 #Haremos un rango normalizado desde 0.2 - 1.0 
 
+def normalize_weights(user_priority, min_w=0.2, max_w=1.0): #obtenemos los pesos por prioridades
+    min_p = min(user_priority.values())
+    max_p = max(user_priority.values())
+
+    weights = {}
+    for key, p in user_priority.items():
+        norm = (p - min_p) / (max_p - min_p)
+        weights[key] = min_w + norm * (max_w - min_w)
+
+    return weights
+
+
+def ponder_characteristics(filters: dict, data):
+    scores = {k: 0 for k in filters.keys()}
+
+    if not data:
+        return scores
+
+    elements = data.get("elements", [])
+
+    for k, enabled in filters.items():
+        if enabled:
+            scores[k] += 1
+            related = sum(1 for e in elements if k in str(e))
+            scores[k] += min(related, 5)
+
+    return scores
 
 
 
@@ -83,12 +110,3 @@ print("\nPrimeros 3 elementos encontrados:")
 for i, elem in enumerate(data["elements"][:3], start=1):
     print(f"{i}: {elem}")
     
-
-def ponder_characteristics (data):
-    raise NotImplementedError ("No hecho aun")
-
-def sum_scores(data):
-    raise NotImplementedError ("No hecho aun")
-
-def best_neighboord(data):
-    raise NotImplementedError ("No hecho aun")
