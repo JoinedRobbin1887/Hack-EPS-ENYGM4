@@ -62,7 +62,8 @@ def call_overpass(query):
 
 ########################## TESTING AND DEBUGGING ##########################
 
-user_priority= {}
+user_priority= {"estilo_de_vida":1 , "seguridad" :2, "movilidad":3, "vivienda":4, "habitatge":5}
+
 user_filters = {
     "restaurants": True,
     "parks": True,
