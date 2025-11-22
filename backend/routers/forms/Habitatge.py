@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from ClasesFormularis import FormHabitatge
+from schemas.forms.FromHabitatge import habitatge
 
 router = APIRouter(prefix="/habitatges")
 
 @router.post("/")
-def catch_form(form: FormHabitatge):
+def catch_form(form: habitatge):
     return form

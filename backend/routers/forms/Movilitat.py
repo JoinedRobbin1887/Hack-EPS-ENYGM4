@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from ClasesFormularis import FormMovilitat
+from schemas.forms.FromMovilitat import movilitat
 
 router = APIRouter(prefix="/movilitat")
 
@@ -8,5 +8,5 @@ router = APIRouter(prefix="/movilitat")
 
 
 @router.post("/")
-def catch_form(form: FormMovilitat):
+def catch_form(form: movilitat):
     return form
