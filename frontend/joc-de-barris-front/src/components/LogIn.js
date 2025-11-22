@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { Button } from "./Button";
 import { Link } from "react-router-dom";
-import { Recomendacion } from "./Recomendation";  
 
 export function LogIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const isValidEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleLogin = () => {
     if (!email || !password) {
@@ -25,7 +23,6 @@ export function LogIn() {
 
     setError("");
     console.log("Email:", email, "Password:", password);
-    // Aquí iría la lógica real de login
   };
 
   return (
@@ -54,10 +51,10 @@ export function LogIn() {
           Log In
         </Button>
       </form>
+
       <Link to="/">
         <Button className="mt-4 p-2 bg-gray-500 hover:bg-gray-400">Volver</Button>
       </Link>
-      <Recomendacion barrios={["Barrio Gótico", "El Raval", "Gràcia"]} />
     </div>
   );
 }
