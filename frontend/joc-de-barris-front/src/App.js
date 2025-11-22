@@ -9,6 +9,10 @@ function App() {
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
+
+        <div>
+          <Button className="m-4 p-2">Click Me</Button>
+        </div>
         <a
           className="App-link "
           href="https://reactjs.org"
@@ -17,8 +21,8 @@ function App() {
         >
           Learn React
         </a>
-        <Button text="Click Me"/>
       </header>
+
     </div>
   );
 }
