@@ -22,9 +22,9 @@ export function PreferenceSelector({ label, options, selected, onChange, type = 
                 ${
                   isSelected
 
-                    ? "bg-cornflower-blue-800 text-white font-semibold border-blue-700"
-                    // NORMAL: Contorn gris suau
-                    : "bg-transparent text-gray-700 border-gray-400 hover:bg-blue-50 hover:text-blue-700"
+                    ? "bg-cornflower-blue-800 text-white font-semibold border-cornflower-blue-700"
+
+                    : "bg-transparent text-gray-700 border-gray-400 hover:bg-blue-50 hover:text-cornflower-blue-700"
                 }
               `}
               onClick={() => {

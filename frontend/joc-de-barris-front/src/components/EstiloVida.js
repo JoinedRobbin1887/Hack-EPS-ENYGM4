@@ -1,29 +1,20 @@
 // src/components/EstiloVida.js
-import React, { useState } from "react";
+import React from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 
-export function EstiloVida() {
-  const [restaurants, setRestaurants] = useState([]);
-  const [parcs, setParcs] = useState([]);
-  const [diversidad, setDiversidad] = useState([]);
-  const [gyms, setGyms] = useState([]);
-  const [botigues, setBotigues] = useState([]);
+export function EstiloVida({ restaurants, setRestaurants, parcs, setParcs, diversidad, setDiversidad, gyms, setGyms, botigues, setBotigues }) {
 
   const yesNoOptions = ["YES", "NO"];
 
   return (
-    // TARGETA: Aplicació d'estils de targeta consistent (shadow-xl, p-6, rounded-xl)
     <div className="w-full mb-8 p-6 bg-white rounded-xl shadow-xl border border-gray-100 relative">
       
-      {/* TÍTOL: Estilitzat amb negreta, mida gran, color de marca i icona */}
-      <h2 className="font-extrabold text-2xl mb-4 text-blue-800 flex items-center space-x-2">
+      <h2 className="font-extrabold text-2xl mb-4 text-cornflower-blue-800 flex items-center space-x-2">
         <span>Lifestyle & Nearby Services</span>
       </h2>
       
-      {/* GRID RESPONSIVE: 2 Columnes (md:grid-cols-2) per optimitzar l'espai de SI/NO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
         
-        {/* Tots els PreferenceSelectors s'injecten al grid */}
         <PreferenceSelector 
           label="RESTAURANTS" 
           options={yesNoOptions} 

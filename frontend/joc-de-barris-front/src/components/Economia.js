@@ -1,12 +1,8 @@
 // src/components/Economia.js
-import React, { useState } from "react";
+import React from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 
-export function Economia() {
-  const [ingresos, setIngresos] = useState([]);
-  const [edad, setEdad] = useState([]);
-  const [densitat, setDensitat] = useState([]);
-  const [activitat, setActivitat] = useState([]);
+export function Economia({ ingresos, setIngresos, edad, setEdad, densitat, setDensitat, activitat, setActivitat }) {
 
 return (
     <div className="w-full mb-8 p-6 bg-white rounded-xl shadow-xl border border-gray-100 relative">
@@ -14,10 +10,8 @@ return (
         Demography & Economy
       </h2>
       
-      {/* CANVI CLAU: Utilitzem GRID de 2 columnes per garantir una separació visual clara */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4"> 
         
-        {/* Fila 1 */}
         <PreferenceSelector 
           label="INCOMES" 
           options={["LOW", "MEDIUM", "HIGH"]} 
