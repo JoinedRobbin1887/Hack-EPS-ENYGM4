@@ -2,18 +2,16 @@
 import React from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 
-// CAMBIO: Recibe props data y setData desde StartPage
-export function Economia({ data, setData }) {
-  return (
+export function Economia({ ingresos, setIngresos, edad, setEdad, densitat, setDensitat, activitat, setActivitat }) {
+
+return (
     <div className="w-full mb-8 p-6 bg-white rounded-xl shadow-xl border border-gray-100 relative">
       <h2 className="font-extrabold text-2xl mb-4 text-cornflower-blue-800 space-x-2">
         Demography & Economy
       </h2>
       
-      {/* GRID de 2 columnas para separación visual */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4"> 
         
-        {/* Fila 1 */}
         <PreferenceSelector 
           label="INCOMES" 
           options={["LOW", "MEDIUM", "HIGH"]} 
