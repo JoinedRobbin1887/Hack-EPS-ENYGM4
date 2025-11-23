@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import os
 import json
+import csv
 
 
 #1 - PRIMERA FILTRACIÓN NO PONDERADA - datos fiables
@@ -99,13 +100,17 @@ def ponder_characteristics(filters: dict, data):
 
 # 3- REDUCIMOS EL SCOPE - CON CARACTERISTICAS MÁS ESPECIFICAS ------------ SEGURIDAD --------------
 
-def security_scope (data:list):
-    security_db= pd.read_csv("security_db_scope.csv").sample(n=5000)
+def security_scope(data_file="overpass_response.json"):
     
-    location_matching= security_db["LOCATION"]
+    with open(data_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    security_db = pd.read_csv("security_db_scope.csv").sample(n=5000)
+    location_matching_lapd = security_db["LOCATION"]
+
+   sta de locations :::: DICCIONARIO PREFIERO  idddddd- para saber el lugar y no
     
-    raise NotImplementedError ("NOT YET")
-    
+        
     
 
 
