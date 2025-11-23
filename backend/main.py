@@ -87,7 +87,7 @@ async def get_form(form: dict):
 
     dic1 = []
 
-    for i in range(5):
+    for i in range(len(finish_data)):
         dic1.append(finish_data[i]["name"])
 
 
