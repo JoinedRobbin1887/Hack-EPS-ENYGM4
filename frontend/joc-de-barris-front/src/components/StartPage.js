@@ -125,7 +125,6 @@ export function StartPage() {
       return;
     }
     
-    // === 1. REGRUPACIÓ DE DADES PER COINCIDIR AMB LES CLAUS DEL BACKEND ===
     // Convertim l'objecte 'preferences' a les claus de nivell superior que el backend espera
     const preferencesGrouped = {
         // Demografia i Economia
@@ -139,7 +138,7 @@ export function StartPage() {
             diversidad: preferences.diversidad, gyms: preferences.gyms, 
             botigues: preferences.botigues
         },
-        // Mobilitat (Utilitza 'movilitat' com a clau del backend)
+        // Mobilitat
         movilitat: { 
             accesPeu: preferences.accesPeu, transportPublic: preferences.transportPublic, 
             carrilsBici: preferences.carrilsBici, autopistes: preferences.autopistes, 
@@ -151,15 +150,13 @@ export function StartPage() {
         habitatge: { precios: preferences.precios, tipos: preferences.tipos },
     };
 
-    // 2. Creació de l'objecte d'enviament final (amb la clau 'prioritat' i les categories desagrupades)
+    // Creació de l'objecte d'enviament final (amb la clau 'prioritat' i les categories desagrupades)
     const submissionData = {
         ...preferencesGrouped, 
-        prioritat: categoryOrder, // Canviem 'priorities' a 'prioritat' (com al backend)
+        prioritat: categoryOrder, 
     };
     
-    // console.log("JSON FINAL ENVIAT:", submissionData); // Utilitza-ho per depurar
-
-    // Aquesta és la URL que utilitza el domini Tailscale
+  
     const API_URL = 'http://127.0.0.1:8000/formcomplite'; 
 
     try {
@@ -235,7 +232,7 @@ export function StartPage() {
             Go back
           </button>
         </Link>
-        {/* Botó Submit (condicionalment desactivat si el formulari no és vàlid) */}
+        {/* Botó Submit (desactivat si el formulari no és vàlid) */}
         <button 
           onClick={handleSubmit}
           className={`text-white text-2xl font-bold py-3 px-6 rounded-full shadow-lg mt-6 transition duration-300 ${
