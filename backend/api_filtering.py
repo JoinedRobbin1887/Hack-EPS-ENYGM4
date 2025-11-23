@@ -188,7 +188,9 @@ def parse_price_range(price_str):
 def prepare_and_filter(input_json="clean_security.json",
                        output_json="final_target_locations.json",
                        max_radius=2,
-                       preview=True):
+                       preview=True, 
+                       price_range= None
+                       ):
 
     # 1. Verificar archivo
     if not os.path.exists(input_json):
@@ -235,7 +237,6 @@ def prepare_and_filter(input_json="clean_security.json",
             seen_preview.add(key)
 
         # Datos opcionales de vivienda
-        price_range = item.get("price_range")
         tipo = item.get("tipo")
 
         # Si no es vivienda, no lo agregamos al JSON final, pero sí puede aparecer en preview
