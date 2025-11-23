@@ -175,6 +175,8 @@ def security_scope(
     return filtered
 
 # 4 FILTRO ---- REDUCIMOS SCOPE CAMPO - HABITATGE
+from config import API_REAL_STATE_KEY
+
 
 ########################## TESTING AND DEBUGGING ##########################
 
