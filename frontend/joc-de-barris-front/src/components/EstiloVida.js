@@ -2,12 +2,8 @@
 import React, { useState } from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 
-export function EstiloVida() {
-  const [restaurants, setRestaurants] = useState([]);
-  const [parcs, setParcs] = useState([]);
-  const [diversidad, setDiversidad] = useState([]);
-  const [gyms, setGyms] = useState([]);
-  const [botigues, setBotigues] = useState([]);
+export function EstiloVida({data, setData}) {
+  
 
   const yesNoOptions = ["YES", "NO"];
 
@@ -27,32 +23,33 @@ export function EstiloVida() {
         <PreferenceSelector 
           label="RESTAURANTS" 
           options={yesNoOptions} 
-          selected={restaurants} 
-          onChange={setRestaurants} 
+          selected={data.restaurants} 
+          onChange={(value) => setData({ ...data, restaurants: value })}
         />
+
         <PreferenceSelector 
           label="PARKS & GREEN SPACE" 
           options={yesNoOptions} 
-          selected={parcs} 
-          onChange={setParcs} 
+          selected={data.parcs} 
+          onChange={(value) => setData({ ...data, parcs: value })}
         />
         <PreferenceSelector 
           label="CULTURAL DIVERSITY" 
           options={yesNoOptions} 
-          selected={diversidad} 
-          onChange={setDiversidad} 
+          selected={data.diversidad} 
+          onChange={(value) => setData({ ...data, diversidad: value })}
         />
         <PreferenceSelector 
           label="GYMS / FITNESS CENTERS" 
           options={yesNoOptions} 
-          selected={gyms} 
-          onChange={setGyms} 
+          selected={data.gyms} 
+          onChange={(value) => setData({ ...data, gyms: value })} 
         />
         <PreferenceSelector 
           label="LOCAL SHOPS & BUSINESSES" 
           options={yesNoOptions} 
-          selected={botigues} 
-          onChange={setBotigues} 
+          selected={data.botigues} 
+          onChange={(value) => setData({ ...data, botigues: value })}
         />
       </div>
     </div>
