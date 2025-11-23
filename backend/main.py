@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from api_filtering import build_overpass_query
+import json
+from api_filtering import build_overpass_query, call_overpass, normalize_weights,ponder_characteristics, security_scope, parse_price_range,prepare_and_filter
 
 app = FastAPI()
 
@@ -21,13 +22,50 @@ def get_form(form: dict):
     estatvida = form["vida"]
     seguretat = form["seguretat"]
     habitatge = form["habitatge"]
+
     movilitat = form["movilitat"]
     prioritat_list = form["prioritat"] # Rep la llista de categories ordenades
 
     prioritat_rang = reord_priority_to_rank(prioritat_list)
 
     estatvidaMovilitat = estatvida | movilitat 
-    build_overpass_query(estatvidaMovilitat)
+    query = build_overpass_query(estatvidaMovilitat)
+    
+    data = call_overpass(query)
+
+    archivo_data_json = "data.json"
+
+    try:
+        with open(archivo_data_json, 'w', encoding='utf-8') as archivo:
+            json.dump(data, archivo, indent=4)
+    except IOError as e:
+        print("Error al escrivir el archivo")
+
+
+    weights = normalize_weights(prioritat_rang)
+
+    scores = ponder_characteristics(estatvidaMovilitat, data)
+
+    final_scores = {k: scores[k]*weights.get(k,1) for k in scores}
+
+    ranked = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
+
+    overall_score = sum(final_scores.values())
+
+    security = security_scope(archivo_data_json)
+
+    archivo_security_json = "security.json"
+
+    try:
+        with open(archivo_security_json, 'w', encoding='utf-8') as archivo:
+            json.dump(security, archivo, indent=4)
+    except IOError as e:
+        print("Error al escrivir el archivo")
+
+    price_range = habitatge["preus"]
+    tipe = habitatge["tipus"]
+    print("hola")
+    prepare_and_filter(archivo_security_json, price_range=price_range, tipo=tipe)
 
     return [
         {
