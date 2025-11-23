@@ -3,9 +3,15 @@ import { useLocation } from 'react-router-dom';
 import { ImageSlider } from './ImageSlider'; 
 
 export function Results() {
-  const location = useLocation();
-  // Assegurem que resultats sigui un array, encara que el backend envii un objecte
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState(results?.[0] || null);
+  const { state } = useLocation();
+  
+  // Definim resultats i preferències
+  const results = state?.results || [];
+  const preferences = state?.preferences || {};
+  
+  // Utilitzem els resultats definits (results) per inicialitzar l'estat
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState(results[0] || null);
+
 
   const getScoreColor = (score) => {
       if (score >= 9.0) return 'text-green-600';
@@ -21,9 +27,9 @@ export function Results() {
         </div>
       );
   }
-  
-  const streetViewUrls = selectedNeighborhood?.street_view_urls?.urls || []; // si el backend envia l'objecte, accedim a la clau 'urls'
 
+  // Extreure les URLs de Street View del barri seleccionat
+  const streetViewUrls = selectedNeighborhood?.street_view_urls?.urls || []; 
   
   return (
     <div className="min-h-screen pt-32 bg-cornflower-blue-100">
