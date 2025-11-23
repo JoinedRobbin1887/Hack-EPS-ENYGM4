@@ -32,20 +32,20 @@ app.include_router(Seguridad.router)
 
 @app.post("/formcomplite")
 def get_form(form: dict):
-    demografia= form["demografia"]
-    estatvida= form["vida"]
-    seguretat= form["seguretat"]
-    habitatge= form["habitatge"]
-    movilitat= form["movilitat"]
-    prioritat= form["prioritat"]
+    demografia= form["Economia"]
+    estatvida= form["EstiloVida"]
+    seguretat= form["Seguridad"]
+    habitatge= form["Habitatge"]
+    movilitat= form["Movilidad"]
+    #prioritat= form["StartPage"]
 
     estatvidaMovilitat = estatvida | movilitat
 
-    print(prioritat)
+    #print(prioritat)
 
-    new_priority = reord_priority(prioritat)
+    #new_priority = reord_priority(prioritat)
     #build_overpass_query(estatvidaMovilitat)
-    print(new_priority)
+    #print(new_priority)
 
     return estatvidaMovilitat
 
