@@ -14,7 +14,8 @@ export function Results() {
   
   if (!results || results.length === 0) {
       return (
-        <div className="min-h-screen pt-32 bg-gray-50 p-20 text-center">
+        // Fons del missatge d'error: Canviat a bg-cornflower-blue-100
+        <div className="min-h-screen pt-32 bg-cornflower-blue-100 p-20 text-center">
           <h2 className="text-4xl font-bold text-red-600 mb-4">NO results were found</h2>
           <p className="text-xl text-gray-700">The recommendation engine could not find an ideal neighborhood based on these preferences.</p>
         </div>
@@ -22,14 +23,16 @@ export function Results() {
   }
   
   return (
-    <div className="min-h-screen pt-32 bg-gray-50">
+    // Fons principal de la pàgina: Canviat a bg-cornflower-blue-100
+    <div className="min-h-screen pt-32 bg-cornflower-blue-100">
           
       <h2 className="text-4xl font-bold text-center text-blue-900 mb-10">
-        Recommendation Results 🏰
+        Recommendation Results
       </h2>
           
       <div className="flex flex-col lg:flex-row max-w-7xl mx-auto px-4 gap-6">
               
+        {/* Mapa */}
         <div className="lg:w-3/5 w-full h-96 lg:h-auto bg-gray-200 rounded-xl shadow-xl overflow-hidden flex items-center justify-center">
           <div className="p-4 text-gray-500 text-center text-xl">
             [Map Area: Los Angeles - {results.length} Neighborhood{results.length !== 1 ? 's' : ''} Found]
@@ -38,6 +41,7 @@ export function Results() {
 
         <div className="lg:w-2/5 w-full space-y-6">
 
+          {/* Llista de recomanacions*/}
           <div className="bg-white rounded-xl shadow-xl p-4">
             <h3 className="text-2xl font-semibold text-blue-900 mb-4 border-b pb-2">Top Recommended Neighborhoods</h3>
             {results.map((neighborhood) => (
@@ -54,7 +58,7 @@ export function Results() {
             ))}
           </div>
 
-          {/* 3. DETAIL PANEL / JUSTIFICATION ENGINE */}
+          {/* Motor*/}
           {selectedNeighborhood && (
             <div className="bg-white rounded-xl shadow-xl p-6 border-l-4 border-blue-500">
               <h3 className="text-2xl font-bold text-blue-900 mb-4">{selectedNeighborhood.name}</h3>
