@@ -36,5 +36,3 @@ with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         f,
         indent=4
     )
-
-s
