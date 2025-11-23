@@ -1,18 +1,10 @@
 import os
-import requests
-from config import API_KEY
+import json
 
-# -----------------------------
-# Configuración
-# -----------------------------
-API_KEY = API_KEY 
-OUTPUT_FOLDER = "street_view_images"
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+API_KEY = "TU_API_KEY"
+OUTPUT_JSON = "street_view_urls.json"
 
-# -----------------------------
-# Función para generar URLs de Street View
-# -----------------------------
-def generate_street_view_urls(street_name, city_name=None):
+def generate_street_view_urls(street_name, city_name="Los Angeles"):
     """
     Genera 4 URLs de Street View para una calle.
     """
@@ -31,30 +23,10 @@ def generate_street_view_urls(street_name, city_name=None):
         urls.append(url)
     return urls
 
-# -----------------------------
-# Función para descargar imágenes
-# -----------------------------
-def download_images(urls, folder=OUTPUT_FOLDER):
-    for i, url in enumerate(urls):
-        response = requests.get(url)
-        if response.status_code == 200:
-            path = os.path.join(folder, f"street_{i}.jpg")
-            with open(path, "wb") as f:
-                f.write(response.content)
-            print(f"Descargada: {path}")
-        else:
-            print(f"No se pudo descargar {url}")
-
-# -----------------------------
-# EJEMPLO
-# -----------------------------
-street_name = "Sunset Blvd"
-city_name = "Los Angeles"  # opcional
-
 urls = generate_street_view_urls(street_name, city_name)
-print("=== URLs de Street View ===")
-for u in urls:
-    print(u)
 
-# Descargar imágenes
-download_images(urls)
+# Guardar URLs en JSON
+with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+    json.dump({"street_name": street_name, "city_name": city_name, "urls": urls}, f, indent=4)
+
+print(f"URLs guardadas en {OUTPUT_JSON}")
