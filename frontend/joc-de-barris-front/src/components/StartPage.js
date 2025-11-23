@@ -193,7 +193,7 @@ export function StartPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-cornflower-blue-100 p-8">
-      <h1 className="text-4xl font-bold mb-10 text-center text-cornflower-blue-800 mt-2">SELECT YOUR PREFERENCES</h1>
+      <h1 className="text-4xl font-bold mb-10 text-center text-cornflower-blue-800 pt-20">SELECT YOUR PREFERENCES</h1>
 
       <div className="w-full max-w-6xl"> 
         {categoryOrder.map((categoryKey, index) => (

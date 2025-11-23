@@ -1,4 +1,3 @@
-// src/components/PreferenceSelector.js
 import React from "react";
 
 export function PreferenceSelector({ label, options, selected, onChange, type = "single" }) {

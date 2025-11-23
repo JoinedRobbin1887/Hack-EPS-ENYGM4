@@ -1,4 +1,3 @@
-// src/components/Habitatge.js
 import React from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 

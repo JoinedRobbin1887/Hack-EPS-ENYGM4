@@ -1,4 +1,3 @@
-// src/components/EstiloVida.js
 import React from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 

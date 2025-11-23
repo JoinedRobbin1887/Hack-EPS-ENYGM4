@@ -1,4 +1,3 @@
-// src/components/Economia.js
 import React from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 

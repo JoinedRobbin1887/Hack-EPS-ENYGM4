@@ -1,4 +1,3 @@
-// src/components/Seguridad.js
 import React, { useEffect } from "react";
 
 export function Seguridad({ seguridad, setSeguridad }) {
