@@ -25,7 +25,7 @@ export function Results() {
     <div className="min-h-screen pt-32 bg-gray-50">
           
       <h2 className="text-4xl font-bold text-center text-blue-900 mb-10">
-        Recommendation Results 🏰
+        Recommendation Results
       </h2>
           
       <div className="flex flex-col lg:flex-row max-w-7xl mx-auto px-4 gap-6">
