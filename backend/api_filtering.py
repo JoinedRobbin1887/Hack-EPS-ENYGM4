@@ -176,11 +176,6 @@ def security_scope(
 
 # 4 FILTRO ---- REDUCIMOS SCOPE CAMPO - HABITATGE
 from config import API_REAL_STATE_KEY
-
-# 4. HABITATGE - Conectar CSV seguro con API RentCast
-import pandas as pd
-import requests
-
 API_KEY = API_REAL_STATE_KEY
 BASE_URL = "https://api.rentcast.io/v1/property/comparables"
 
@@ -221,7 +216,6 @@ def prepare_and_filter(input_json="clean_security.json",
     barrios_filtrados = []
     preview_list = []
 
-    # 🔥 NUEVO: sets para evitar duplicados
     seen_preview = set()
     seen_final = set()
 
@@ -238,9 +232,7 @@ def prepare_and_filter(input_json="clean_security.json",
         # Clave única
         key = (name, float(lat), float(lon))
 
-        # -------------------------
-        # PREVIEW (solo 5 primeros)
-        # -------------------------
+    
         if len(preview_list) < 5 and key not in seen_preview:
             preview_list.append({"name": name, "lat": lat, "lon": lon})
             seen_preview.add(key)
@@ -288,7 +280,6 @@ def prepare_and_filter(input_json="clean_security.json",
             # FILTRO DE PRECIO
             if price_min <= precio_promedio <= price_max:
 
-                # 🔥 Evitar duplicados en resultado final
                 if key not in seen_final:
                     barrios_filtrados.append({
                         "name": name,
@@ -302,7 +293,7 @@ def prepare_and_filter(input_json="clean_security.json",
                     seen_final.add(key)
 
         except Exception as e:
-            print(f"⚠ Error en API para {name}: {e}")
+            print(f"Error en API para {name}: {e}")
             continue
 
     # Guardar resultado final
@@ -310,7 +301,7 @@ def prepare_and_filter(input_json="clean_security.json",
         json.dump(barrios_filtrados, f, indent=4, ensure_ascii=False)
 
     # Mostrar preview
-    if preview:
+    if preview:   
         print(" Primeros 5 elementos limpios (sin duplicados):")
         for i, elem in enumerate(preview_list, start=1):
             print(f"{i}. {elem}")
