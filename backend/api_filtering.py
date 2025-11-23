@@ -27,7 +27,7 @@ def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
     }
 
     for feature in query_struct.keys():
-        if filters.get(feature):   # <-- evita error si un filtro es None
+        if filters.get(feature):  
             blocks.append(query_struct[feature])
 
     # Si no hay ningún bloque activo
@@ -108,7 +108,6 @@ def security_scope(
 ):
     print("--- Iniciando Filtro de Seguridad ---")
 
-    # 1. Cargar JSON de Overpass
     try:
         with open(data_file, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -118,13 +117,10 @@ def security_scope(
 
     elements = data.get("elements", [])
     
-    # 2. Cargar y Limpiar Dataset de Crímenes
+    
     try:
         crime_db = pd.read_csv(crime_file).sample(n=500) # limitamos las comparaciones
         
-        # LIMPIEZA DE DATOS CRÍTICOS:
-        # Convertimos la columna LOCATION a string y luego a MAYÚSCULAS
-        # .fillna('') evita errores si hay celdas vacías
         crime_db["LOCATION"] = crime_db["LOCATION"].astype(str).fillna('').str.upper()
         
         print(f"Base de datos de crímenes cargada: {len(crime_db)} registros.")
@@ -188,6 +184,7 @@ def parse_price_range(price_str):
         return price_min, price_max
     except:
         return None, None
+    
 def prepare_and_filter(input_json="clean_security.json",
                        output_json="final_target_locations.json",
                        max_radius=2,
@@ -308,65 +305,3 @@ def prepare_and_filter(input_json="clean_security.json",
 
     return barrios_filtrados
 
-
-########################## TESTING AND DEBUGGING ##########################
-
-user_priority = {
-    "estilo_de_vida": 1,  
-    "movilidad": 3,
-    "vivienda": 2,
-    "habitatge": 5,
-    "Securitat": 2
-}
-
-user_filters = {
-    "restaurants": True,
-    "parks": True,
-    "cultural": False,
-    "gyms": True,
-    "shops": False,   
-    "sidewalks": True,
-    "public_transport": True,
-    "accessibility": False
-}
-
-city = "Los Angeles"
-
-query = build_overpass_query(user_filters, city)
-data = call_overpass(query)
-
-print("Query generada:")
-print(query)
-
-if data and "elements" in data:
-    print("\nPrimeros 3 elementos encontrados:")
-    for i, elem in enumerate(data["elements"][:3], start=1):
-        print(f"{i}: {elem}")
-else:
-    print("No hay datos o fallo en la API.")
-
-weights = normalize_weights(user_priority)
-print("\nPesos normalizados según prioridades:")
-print(weights)
-
-scores = ponder_characteristics(user_filters, data)
-print("\nScores crudos por característica:")
-print(scores)
-
-final_scores = {k: scores[k]*weights.get(k,1) for k in scores}
-print("\nScores ponderados por prioridad del usuario:")
-print(final_scores)
-
-ranked = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
-print("\nRanking de características según el barrio:")
-for cat, score in ranked:
-    print(f"{cat}: {score}")
-
-overall_score = sum(final_scores.values())
-print("\nScore total de la ciudad:", overall_score)
-
-# Llamar si quieres el filtro de seguridad
-security_scope()
-
-# Ejemplo de uso
-prepare_and_filter()
