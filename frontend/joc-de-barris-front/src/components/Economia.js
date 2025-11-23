@@ -1,4 +1,3 @@
-// src/components/Economia.js
 import React from "react";
 import { PreferenceSelector } from "./PreferenceSelector";
 
@@ -14,7 +13,7 @@ return (
         
         <PreferenceSelector 
           label="INCOMES" 
-          options={["LOW", "MEDIUM", "HIGH"]} 
+          options={["LOW", "MEDIUM", "HIGH"]}
           selected={ingresos} 
           onChange={setIngresos} 
         />
@@ -25,7 +24,6 @@ return (
           onChange={setEdad} 
         />
         
-        {/* Fila 2 */}
         <PreferenceSelector 
           label="DENSITY" 
           options={["LOW DENSITY", "MEDIUM DENSITY", "HIGH DENSITY"]} 

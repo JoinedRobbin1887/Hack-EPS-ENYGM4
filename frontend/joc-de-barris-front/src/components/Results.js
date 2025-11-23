@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ImageSlider } from './ImageSlider'; 
 
 export function Results() {
-  const location = useLocation();
-  const { results, preferences } = location.state || {};
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState(results?.[0] || null);
+  const { state } = useLocation();
+  
+  // Definim resultats i preferències
+  const results = state?.results || [];
+  const preferences = state?.preferences || {};
+  
+  // Utilitzem els resultats definits (results) per inicialitzar l'estat
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState(results[0] || null);
+
 
   const getScoreColor = (score) => {
       if (score >= 9.0) return 'text-green-600';
@@ -14,15 +21,18 @@ export function Results() {
   
   if (!results || results.length === 0) {
       return (
-        <div className="min-h-screen pt-32 bg-gray-50 p-20 text-center">
+        <div className="min-h-screen pt-32 bg-cornflower-blue-100 p-20 text-center">
           <h2 className="text-4xl font-bold text-red-600 mb-4">NO results were found</h2>
           <p className="text-xl text-gray-700">The recommendation engine could not find an ideal neighborhood based on these preferences.</p>
         </div>
       );
   }
+
+  // Extreure les URLs de Street View del barri seleccionat
+  const streetViewUrls = selectedNeighborhood?.street_view_urls?.urls || []; 
   
   return (
-    <div className="min-h-screen pt-32 bg-gray-50">
+    <div className="min-h-screen pt-32 bg-cornflower-blue-100">
           
       <h2 className="text-4xl font-bold text-center text-blue-900 mb-10">
         Recommendation Results
@@ -30,14 +40,28 @@ export function Results() {
           
       <div className="flex flex-col lg:flex-row max-w-7xl mx-auto px-4 gap-6">
               
-        <div className="lg:w-3/5 w-full h-96 lg:h-auto bg-gray-200 rounded-xl shadow-xl overflow-hidden flex items-center justify-center">
-          <div className="p-4 text-gray-500 text-center text-xl">
-            [Map Area: Los Angeles - {results.length} Neighborhood{results.length !== 1 ? 's' : ''} Found]
-          </div>
+        {/* Mirar imatge */}
+        <div className="lg:w-3/5 w-full h-96 lg:h-auto rounded-xl shadow-xl overflow-hidden flex items-center justify-center">
+          
+          {streetViewUrls.length > 0 ? (
+            // Si tenim URLs de Street View, utilitzem l'ImageSlider
+            <ImageSlider 
+                images={streetViewUrls}
+                autoPlayInterval={3000} 
+            />
+          ) : (
+            // Si no hi ha dades de Street View
+            <div className="p-4 text-gray-500 text-center text-xl">
+                Visual data not available for this location.
+            </div>
+          )}
+
         </div>
 
+        {/* Llista de recomanacions i motor */}
         <div className="lg:w-2/5 w-full space-y-6">
 
+          {/* Llista de recomanacions */}
           <div className="bg-white rounded-xl shadow-xl p-4">
             <h3 className="text-2xl font-semibold text-blue-900 mb-4 border-b pb-2">Top Recommended Neighborhoods</h3>
             {results.map((neighborhood) => (
@@ -54,7 +78,7 @@ export function Results() {
             ))}
           </div>
 
-          {/* 3. DETAIL PANEL / JUSTIFICATION ENGINE */}
+          {/* Motor*/}
           {selectedNeighborhood && (
             <div className="bg-white rounded-xl shadow-xl p-6 border-l-4 border-blue-500">
               <h3 className="text-2xl font-bold text-blue-900 mb-4">{selectedNeighborhood.name}</h3>
