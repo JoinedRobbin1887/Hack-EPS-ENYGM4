@@ -14,6 +14,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+finish_data = {}
+
 
 
 def reord_priority_to_rank(prioritat_list: list):
@@ -80,7 +82,7 @@ async def get_form(form: dict):
     price_range = habitatge["precios"]
     tipe = habitatge["tipos"]
     print("hola")
-    prepare_and_filter(archivo_security_json, price_range=price_range, tipo=tipe)
+    finish_data = prepare_and_filter(archivo_security_json, price_range=price_range, tipo=tipe)
 
     return [
         {
@@ -92,6 +94,13 @@ async def get_form(form: dict):
     ]
 
 
-@app.get("/hola")
-def get_results():
+@app.get("/results")
+async def get_results():
+    return finish_data
+
+def picture():
     ...
+
+
+
+
