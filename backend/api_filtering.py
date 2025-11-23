@@ -189,7 +189,8 @@ def prepare_and_filter(input_json="clean_security.json",
                        output_json="final_target_locations.json",
                        max_radius=2,
                        preview=True, 
-                       price_range= None
+                       price_range= None,
+                       tipo = None #casa/depa
                        ):
 
     # 1. Verificar archivo
@@ -235,9 +236,6 @@ def prepare_and_filter(input_json="clean_security.json",
         if len(preview_list) < 5 and key not in seen_preview:
             preview_list.append({"name": name, "lat": lat, "lon": lon})
             seen_preview.add(key)
-
-        # Datos opcionales de vivienda
-        tipo = item.get("tipo")
 
         # Si no es vivienda, no lo agregamos al JSON final, pero sí puede aparecer en preview
         if not price_range or not tipo:
