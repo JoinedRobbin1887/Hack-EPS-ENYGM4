@@ -120,7 +120,7 @@ def security_scope(
     
     # 2. Cargar y Limpiar Dataset de Crímenes
     try:
-        crime_db = pd.read_csv(crime_file).sample(n=5000) # limitamos las comparaciones
+        crime_db = pd.read_csv(crime_file).sample(n=500) # limitamos las comparaciones
         
         # LIMPIEZA DE DATOS CRÍTICOS:
         # Convertimos la columna LOCATION a string y luego a MAYÚSCULAS
@@ -177,10 +177,152 @@ def security_scope(
 # 4 FILTRO ---- REDUCIMOS SCOPE CAMPO - HABITATGE
 from config import API_REAL_STATE_KEY
 
+# 4. HABITATGE - Conectar CSV seguro con API RentCast
+import pandas as pd
+import requests
+
+API_KEY = API_REAL_STATE_KEY
+BASE_URL = "https://api.rentcast.io/v1/property/comparables"
+
+def parse_price_range(price_str):
+    """Convierte '500000 - 900000' a min y max como enteros."""
+    try:
+        min_str, max_str = price_str.split("-")
+        price_min = int(min_str.replace(",","").strip())
+        price_max = int(max_str.replace(",","").strip())
+        return price_min, price_max
+    except:
+        return None, None
+def prepare_and_filter(input_json="clean_security.json",
+                       output_json="final_target_locations.json",
+                       max_radius=2,
+                       preview=True):
+
+    # 1. Verificar archivo
+    if not os.path.exists(input_json):
+        print(f" Error: No se encuentra el archivo {input_json}")
+        return
+
+    # 2. Cargar JSON limpio
+    with open(input_json, "r", encoding="utf-8") as f:
+        loaded = json.load(f)
+
+    # 3. Detectar estructura
+    if isinstance(loaded, dict) and "elements" in loaded:
+        data = loaded["elements"]
+    elif isinstance(loaded, list):
+        data = loaded
+    else:
+        print("Formato desconocido en JSON, no se puede procesar.")
+        return
+
+    print(f"Procesando {len(data)} elementos...")
+
+    barrios_filtrados = []
+    preview_list = []
+
+    # 🔥 NUEVO: sets para evitar duplicados
+    seen_preview = set()
+    seen_final = set()
+
+    for item in data:
+
+        # Extraer nombre desde tags
+        name = item.get("name") or item.get("tags", {}).get("name")
+        lat = item.get("lat")
+        lon = item.get("lon")
+
+        if not all([name, lat, lon]):
+            continue
+
+        # Clave única
+        key = (name, float(lat), float(lon))
+
+        # -------------------------
+        # PREVIEW (solo 5 primeros)
+        # -------------------------
+        if len(preview_list) < 5 and key not in seen_preview:
+            preview_list.append({"name": name, "lat": lat, "lon": lon})
+            seen_preview.add(key)
+
+        # Datos opcionales de vivienda
+        price_range = item.get("price_range")
+        tipo = item.get("tipo")
+
+        # Si no es vivienda, no lo agregamos al JSON final, pero sí puede aparecer en preview
+        if not price_range or not tipo:
+            continue
+
+        # Parseo de rango
+        price_min, price_max = parse_price_range(price_range)
+        if price_min is None:
+            continue
+
+        tipo = str(tipo).lower()
+        if tipo == "casa":
+            propertyType = "Single Family"
+        elif tipo == "departamento":
+            propertyType = "Condo"
+        else:
+            continue
+
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "propertyType": propertyType,
+            "maxRadius": max_radius,
+            "lookupSubjectAttributes": False
+        }
+        headers = {"Authorization": f"Bearer {API_KEY}"}
+
+        try:
+            resp = requests.get(BASE_URL, params=params, headers=headers).json()
+            comps = resp.get("comparables", [])
+            precios = [p["estimatedValue"] for p in comps if "estimatedValue" in p]
+
+            if not precios:
+                continue
+
+            precio_promedio = sum(precios) / len(precios)
+
+            # FILTRO DE PRECIO
+            if price_min <= precio_promedio <= price_max:
+
+                # 🔥 Evitar duplicados en resultado final
+                if key not in seen_final:
+                    barrios_filtrados.append({
+                        "name": name,
+                        "latitude": lat,
+                        "longitude": lon,
+                        "price_avg_api": precio_promedio,
+                        "price_min_input": price_min,
+                        "price_max_input": price_max,
+                        "propertyType": propertyType
+                    })
+                    seen_final.add(key)
+
+        except Exception as e:
+            print(f"⚠ Error en API para {name}: {e}")
+            continue
+
+    # Guardar resultado final
+    with open(output_json, "w", encoding="utf-8") as f:
+        json.dump(barrios_filtrados, f, indent=4, ensure_ascii=False)
+
+    print(f"\n JSON creado: {output_json} ({len(barrios_filtrados)} viviendas únicas encontradas)\n")
+
+    # Mostrar preview
+    if preview:
+        print(" Primeros 5 elementos limpios (sin duplicados):")
+        for i, elem in enumerate(preview_list, start=1):
+            print(f"{i}. {elem}")
+
+    return barrios_filtrados
+
 
 ########################## TESTING AND DEBUGGING ##########################
 
-""" user_priority = {
+user_priority = {
     "estilo_de_vida": 1,  
     "movilidad": 3,
     "vivienda": 2,
@@ -196,7 +338,7 @@ user_filters = {
     "shops": False,   
     "sidewalks": True,
     "public_transport": True,
-    "accessibility": True
+    "accessibility": False
 }
 
 city = "Los Angeles"
@@ -235,4 +377,7 @@ overall_score = sum(final_scores.values())
 print("\nScore total de la ciudad:", overall_score)
 
 # Llamar si quieres el filtro de seguridad
-security_scope()"""
+security_scope()
+
+# Ejemplo de uso
+prepare_and_filter()
