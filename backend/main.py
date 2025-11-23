@@ -1,60 +1,44 @@
 from fastapi import FastAPI
-from routers.forms import Demografia, EstilVida, Habitatge, Movilitat, Seguridad
 from api_filtering import build_overpass_query
-from fastapi.middleware.cors import CORSMiddleware
-
-
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://100.70.184.27",
-    "http://localhost",
-]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials = True,
-    allow_methods = ["*"],
-    allow_headers = ["*"],
-)
-
-# Routern
-app.include_router(Demografia.router)
-app.include_router(EstilVida.router)
-app.include_router(Habitatge.router)
-app.include_router(Movilitat.router)
-app.include_router(Seguridad.router)
+def reord_priority_to_rank(prioritat_list: list):
+    
+    
+    new_prioritys = {
+        category: index + 1
+        for index, category in enumerate(prioritat_list)
+    }
+    return new_prioritys
 
 
 @app.post("/formcomplite")
 def get_form(form: dict):
-    demografia= form["demografia"]
-    estatvida= form["vida"]
-    seguretat= form["seguretat"]
-    habitatge= form["habitatge"]
-    movilitat= form["movilitat"]
-    prioritat= form["prioritat"]
+    # Llegeix les claus de nivell superior enviades pel frontend
+    demografia = form["demografia"]
+    estatvida = form["vida"]
+    seguretat = form["seguretat"]
+    habitatge = form["habitatge"]
+    movilitat = form["movilitat"]
+    prioritat_list = form["prioritat"] # Rep la llista de categories ordenades
 
-    estatvidaMovilitat = estatvida | movilitat
+    prioritat_rang = reord_priority_to_rank(prioritat_list)
 
-    print(prioritat)
+    estatvidaMovilitat = estatvida | movilitat 
+    build_overpass_query(estatvidaMovilitat)
 
-    new_priority = reord_priority(prioritat)
-    #build_overpass_query(estatvidaMovilitat)
-    print(new_priority)
+    return [
+        {
+            "id": 1, 
+            "name": "Test Success (Backend Ready)", 
+            "score": 10.0, 
+            "metrics": [{"key": "Final Priority Order", "value": str(prioritat_rang), "weight": "Crucial"}]
+        }
+    ]
 
-    return estatvidaMovilitat
 
-
-
-def reord_priority(prioritat: dict):
-    
-    new_prioritys = {}
-
-    for key, value in prioritat.items():
-        new_prioritys[key] = value + 1
-    return new_prioritys
+@app.get("/hola")
+def get_results():
+    ...
