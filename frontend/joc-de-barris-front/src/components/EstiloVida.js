@@ -18,33 +18,32 @@ export function EstiloVida({ restaurants, setRestaurants, parcs, setParcs, diver
         <PreferenceSelector 
           label="RESTAURANTS" 
           options={yesNoOptions} 
-          selected={data.restaurants} 
-          onChange={(value) => setData({ ...data, restaurants: value })}
+          selected={restaurants} 
+          onChange={setRestaurants} 
         />
-
         <PreferenceSelector 
           label="PARKS & GREEN SPACE" 
           options={yesNoOptions} 
-          selected={data.parcs} 
-          onChange={(value) => setData({ ...data, parcs: value })}
+          selected={parcs} 
+          onChange={setParcs} 
         />
         <PreferenceSelector 
           label="CULTURAL DIVERSITY" 
           options={yesNoOptions} 
-          selected={data.diversidad} 
-          onChange={(value) => setData({ ...data, diversidad: value })}
+          selected={diversidad} 
+          onChange={setDiversidad} 
         />
         <PreferenceSelector 
           label="GYMS / FITNESS CENTERS" 
           options={yesNoOptions} 
-          selected={data.gyms} 
-          onChange={(value) => setData({ ...data, gyms: value })} 
+          selected={gyms} 
+          onChange={setGyms} 
         />
         <PreferenceSelector 
           label="LOCAL SHOPS & BUSINESSES" 
           options={yesNoOptions} 
-          selected={data.botigues} 
-          onChange={(value) => setData({ ...data, botigues: value })}
+          selected={botigues} 
+          onChange={setBotigues} 
         />
       </div>
     </div>

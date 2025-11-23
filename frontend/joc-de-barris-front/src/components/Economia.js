@@ -15,28 +15,28 @@ return (
         <PreferenceSelector 
           label="INCOMES" 
           options={["LOW", "MEDIUM", "HIGH"]} 
-          selected={data.ingresos} 
-          onChange={(value) => setData({ ...data, ingresos: value })} // CAMBIO
+          selected={ingresos} 
+          onChange={setIngresos} 
         />
         <PreferenceSelector 
           label="AGE" 
           options={["YOUNG (18-30)", "ADULT (31-55)", "SENIOR (55+)"]} 
-          selected={data.edad} 
-          onChange={(value) => setData({ ...data, edad: value })} // CAMBIO
+          selected={edad} 
+          onChange={setEdad} 
         />
         
         {/* Fila 2 */}
         <PreferenceSelector 
           label="DENSITY" 
           options={["LOW DENSITY", "MEDIUM DENSITY", "HIGH DENSITY"]} 
-          selected={data.densitat} 
-          onChange={(value) => setData({ ...data, densitat: value })} // CAMBIO
+          selected={densitat} 
+          onChange={setDensitat} 
         />
         <PreferenceSelector 
           label="ECONOMIC ACTIVITY" 
           options={["SERVICE SECTOR", "TECHNOLOGY", "PUBLIC SECTOR"]} 
-          selected={data.activitat} 
-          onChange={(value) => setData({ ...data, activitat: value })} // CAMBIO
+          selected={activitat} 
+          onChange={setActivitat} 
         />
       </div>
     </div>

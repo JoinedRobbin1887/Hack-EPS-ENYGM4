@@ -77,53 +77,45 @@ export function StartPage() {
     />
   };
 
-  const [estiloVida, setEstiloVida] = useState({
-    restaurants: [],
-    parcs: [],
-    diversidad: [],
-    gyms: [],
-    botigues: []
-  });
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.target.outerHTML);
+    e.target.style.opacity = '0.5';
+  };
 
-  const [movilidad, setMovilidad] = useState({
-    accesPeu: [],
-    transportPublic: [],
-    carrilsBici: [],
-    autopistes: [],
-    accesibilitat: []
-  });
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = '1';
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
-  const [seguridad, setSeguridad] = useState({
-    seguridad: []
-  });
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
 
-  const [habitatge, setHabitatge] = useState({
-    precios: [],
-    tipos: []
-  });
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
 
-  // CAMBIO: función que se ejecuta al pulsar Submit
-  const handleSubmit = async () => {
-    // Construimos el objeto JSON con todas las preferencias
-    const preferences = { economia, estiloVida, movilidad, seguridad, habitatge };
-
-    try {
-      const response = await fetch("http://localhost:5000/api/preferences", { // CAMBIO: URL de tu backend
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(preferences)
-      });
-
-      if (!response.ok) throw new Error("Error al enviar datos");
-
-      const result = await response.json();
-      console.log("Respuesta del backend:", result);
-
-      // CAMBIO: navegamos a la página de resultados pasando datos con location.state
-      navigate("/results", { state: { results: result, preferences } });
-    } catch (error) {
-      console.error("Error al enviar datos:", error);
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDragOverIndex(null);
+      return;
     }
+
+    const newOrder = [...categoryOrder];
+    const draggedCategory = newOrder[draggedIndex];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(dropIndex, 0, draggedCategory);
+    
+    setCategoryOrder(newOrder);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
 
@@ -146,16 +138,8 @@ export function StartPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-cornflower-blue-100 p-8">
-      <h1 className="text-4xl font-bold mb-10 text-center">SELECT YOUR PREFERENCES</h1>
+      <h1 className="text-4xl font-bold mb-10 text-center text-cornflower-blue-800 mt-2">SELECT YOUR PREFERENCES</h1>
 
-<<<<<<< HEAD
-      {/* CAMBIO: pasamos el estado y la función de actualización como props */}
-      <Economia data={economia} setData={setEconomia} />
-      <EstiloVida data={estiloVida} setData={setEstiloVida} />
-      <Movilidad data={movilidad} setData={setMovilidad} />
-      <Seguridad data={seguridad} setData={setSeguridad} />
-      <Habitatge data={habitatge} setData={setHabitatge} />
-=======
       <div className="w-full max-w-6xl"> 
         {categoryOrder.map((categoryKey, index) => (
           <div
@@ -184,24 +168,11 @@ export function StartPage() {
                 
                 {categoryComponents[categoryKey]}
             </div>
->>>>>>> yasmin
 
-      {/* CAMBIO: botón Submit que envía datos y navega */}
-      <button
-        onClick={handleSubmit}
-        className="bg-cornflower-blue-800 hover:bg-cornflower-blue-600 text-white text-2xl font-bold py-3 px-6 rounded-full shadow-lg mt-6 transition duration-300"
-      >
-        Submit
-      </button>
+          </div>
+        ))}
+      </div>
 
-<<<<<<< HEAD
-      {/* Botón opcional de volver (Link normal) */}
-      <Link to="/">
-        <button className="bg-gray-400 hover:bg-gray-500 text-white text-2xl font-bold py-3 px-6 rounded-full shadow-lg mt-4 transition duration-300">
-          Go Back
-        </button>
-      </Link>
-=======
   
       <div className="flex space-x-4">
         <Link to="/">
@@ -220,7 +191,6 @@ export function StartPage() {
           Submit
         </button>
       </div>
->>>>>>> yasmin
     </div>
   );
 }
