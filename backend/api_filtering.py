@@ -119,7 +119,7 @@ def security_scope(
     
     print("limit")
     try:
-        crime_db = pd.read_csv(crime_file).sample(n=1000) # limitamos las comparaciones
+        crime_db = pd.read_csv(crime_file).sample(n=1580) # limitamos las comparaciones
         
         crime_db["LOCATION"] = crime_db["LOCATION"].astype(str).fillna('').str.upper()
         

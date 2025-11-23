@@ -16,7 +16,7 @@ def reord_priority_to_rank(prioritat_list: list):
 
 
 @app.post("/formcomplite")
-def get_form(form: dict):
+async def get_form(form: dict):
     # Llegeix les claus de nivell superior enviades pel frontend
     demografia = form["demografia"]
     estatvida = form["vida"]
