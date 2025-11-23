@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import json
+from imagen import generate_street_view_urls
 from api_filtering import build_overpass_query, call_overpass, normalize_weights,ponder_characteristics, security_scope, parse_price_range,prepare_and_filter
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -84,23 +85,11 @@ async def get_form(form: dict):
     print("hola")
     finish_data = prepare_and_filter(archivo_security_json, price_range=price_range, tipo=tipe)
 
-    return [
-        {
-            "id": 1, 
-            "name": "Test Success (Backend Ready)", 
-            "score": 10.0, 
-            "metrics": [{"key": "Final Priority Order", "value": str(prioritat_rang), "weight": "Crucial"}]
-        }
-    ]
+    dic1 = []
+
+    for i in range(5):
+        dic1.append(finish_data[i]["name"])
 
 
-@app.get("/results")
-async def get_results():
-    return finish_data
-
-def picture():
-    ...
-
-
-
+    return dic1
 
