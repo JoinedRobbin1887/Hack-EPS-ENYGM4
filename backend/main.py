@@ -1,37 +1,12 @@
 from fastapi import FastAPI
-from routers.forms import Demografia, EstilVida, Habitatge, Movilitat, Seguridad
-from api_filtering import build_overpass_query
-from fastapi.middleware.cors import CORSMiddleware
-
-
+import json
+from api_filtering import build_overpass_query, call_overpass, normalize_weights,ponder_characteristics, security_scope, parse_price_range,prepare_and_filter
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://100.70.184.27",
-    "http://localhost",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials = True,
-    allow_methods = ["*"],
-    allow_headers = ["*"],
-)
-
-# Routern
-app.include_router(Demografia.router)
-app.include_router(EstilVida.router)
-app.include_router(Habitatge.router)
-app.include_router(Movilitat.router)
-app.include_router(Seguridad.router)
-
 
 def reord_priority_to_rank(prioritat_list: list):
-    """Converteix la llista de prioritat ordenada (index 0 = màx) en un diccionari de rangs (1 = màx)."""
+    
     
     new_prioritys = {
         category: index + 1
@@ -41,23 +16,57 @@ def reord_priority_to_rank(prioritat_list: list):
 
 
 @app.post("/formcomplite")
-def get_form(form: dict):
+async def get_form(form: dict):
     # Llegeix les claus de nivell superior enviades pel frontend
     demografia = form["demografia"]
     estatvida = form["vida"]
     seguretat = form["seguretat"]
     habitatge = form["habitatge"]
+
     movilitat = form["movilitat"]
     prioritat_list = form["prioritat"] # Rep la llista de categories ordenades
 
-    # Calcula el diccionari de prioritat amb rangs numèrics (1, 2, 3...)
     prioritat_rang = reord_priority_to_rank(prioritat_list)
 
-    # Dades combinades (per al motor de filtratge)
     estatvidaMovilitat = estatvida | movilitat 
+    query = build_overpass_query(estatvidaMovilitat)
+    
+    data = call_overpass(query)
 
-    # RESULTAT DE PROVA: Retorna la prioritat de rang per confirmar que la lògica del backend funciona
-    # Quan estigui implementat, això ha de retornar la llista de barris.
+    archivo_data_json = "data.json"
+
+    try:
+        with open(archivo_data_json, 'w', encoding='utf-8') as archivo:
+            json.dump(data, archivo, indent=4)
+    except IOError as e:
+        print("Error al escrivir el archivo")
+
+
+    weights = normalize_weights(prioritat_rang)
+
+    scores = ponder_characteristics(estatvidaMovilitat, data)
+
+    final_scores = {k: scores[k]*weights.get(k,1) for k in scores}
+
+    ranked = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
+
+    overall_score = sum(final_scores.values())
+
+    security = security_scope(archivo_data_json)
+
+    archivo_security_json = "security.json"
+
+    try:
+        with open(archivo_security_json, 'w', encoding='utf-8') as archivo:
+            json.dump(security, archivo, indent=4)
+    except IOError as e:
+        print("Error al escrivir el archivo")
+
+    price_range = habitatge["preus"]
+    tipe = habitatge["tipus"]
+    print("hola")
+    prepare_and_filter(archivo_security_json, price_range=price_range, tipo=tipe)
+
     return [
         {
             "id": 1, 
@@ -66,3 +75,8 @@ def get_form(form: dict):
             "metrics": [{"key": "Final Priority Order", "value": str(prioritat_rang), "weight": "Crucial"}]
         }
     ]
+
+
+@app.get("/hola")
+def get_results():
+    ...

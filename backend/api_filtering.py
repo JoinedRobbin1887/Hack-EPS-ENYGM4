@@ -27,7 +27,7 @@ def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
     }
 
     for feature in query_struct.keys():
-        if filters.get(feature):   # <-- evita error si un filtro es None
+        if filters.get(feature):  
             blocks.append(query_struct[feature])
 
     # Si no hay ningún bloque activo
@@ -108,7 +108,6 @@ def security_scope(
 ):
     print("--- Iniciando Filtro de Seguridad ---")
 
-    # 1. Cargar JSON de Overpass
     try:
         with open(data_file, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -118,13 +117,10 @@ def security_scope(
 
     elements = data.get("elements", [])
     
-    # 2. Cargar y Limpiar Dataset de Crímenes
+    print("limit")
     try:
-        crime_db = pd.read_csv(crime_file).sample(n=5000) # limitamos las comparaciones
+        crime_db = pd.read_csv(crime_file).sample(n=1580) # limitamos las comparaciones
         
-        # LIMPIEZA DE DATOS CRÍTICOS:
-        # Convertimos la columna LOCATION a string y luego a MAYÚSCULAS
-        # .fillna('') evita errores si hay celdas vacías
         crime_db["LOCATION"] = crime_db["LOCATION"].astype(str).fillna('').str.upper()
         
         print(f"Base de datos de crímenes cargada: {len(crime_db)} registros.")
@@ -175,62 +171,136 @@ def security_scope(
     return filtered
 
 # 4 FILTRO ---- REDUCIMOS SCOPE CAMPO - HABITATGE
+from config import API_REAL_STATE_KEY
+API_KEY = API_REAL_STATE_KEY
+BASE_URL = "https://api.rentcast.io/v1/property/comparables"
 
-########################## TESTING AND DEBUGGING ##########################
+def parse_price_range(price_str):
+    """Convierte '500000 - 900000' a min y max como enteros."""
+    try:
+        min_str, max_str = price_str.split("-")
+        price_min = int(min_str.replace(",","").strip())
+        price_max = int(max_str.replace(",","").strip())
+        return price_min, price_max
+    except:
+        return None, None
+    
+def prepare_and_filter(input_json="clean_security.json",
+                       output_json="final_target_locations.json",
+                       max_radius=2,
+                       preview=True, 
+                       price_range= None,
+                       tipo = None #casa/depa
+                       ):
 
-""" user_priority = {
-    "estilo_de_vida": 1,  
-    "movilidad": 3,
-    "vivienda": 2,
-    "habitatge": 5,
-    "Securitat": 2
-}
+    # 1. Verificar archivo
+    if not os.path.exists(input_json):
+        print(f" Error: No se encuentra el archivo {input_json}")
+        return
 
-user_filters = {
-    "restaurants": True,
-    "parks": True,
-    "cultural": False,
-    "gyms": True,
-    "shops": False,   
-    "sidewalks": True,
-    "public_transport": True,
-    "accessibility": True
-}
+    # 2. Cargar JSON limpio
+    with open(input_json, "r", encoding="utf-8") as f:
+        loaded = json.load(f)
 
-city = "Los Angeles"
+    # 3. Detectar estructura
+    if isinstance(loaded, dict) and "elements" in loaded:
+        data = loaded["elements"]
+    elif isinstance(loaded, list):
+        data = loaded
+    else:
+        print("Formato desconocido en JSON, no se puede procesar.")
+        return
 
-query = build_overpass_query(user_filters, city)
-data = call_overpass(query)
+    print(f"Procesando {len(data)} elementos...")
 
-print("Query generada:")
-print(query)
+    barrios_filtrados = []
+    preview_list = []
 
-if data and "elements" in data:
-    print("\nPrimeros 3 elementos encontrados:")
-    for i, elem in enumerate(data["elements"][:3], start=1):
-        print(f"{i}: {elem}")
-else:
-    print("No hay datos o fallo en la API.")
+    seen_preview = set()
+    seen_final = set()
 
-weights = normalize_weights(user_priority)
-print("\nPesos normalizados según prioridades:")
-print(weights)
+    for item in data:
 
-scores = ponder_characteristics(user_filters, data)
-print("\nScores crudos por característica:")
-print(scores)
+        # Extraer nombre desde tags
+        name = item.get("name") or item.get("tags", {}).get("name")
+        lat = item.get("lat")
+        lon = item.get("lon")
 
-final_scores = {k: scores[k]*weights.get(k,1) for k in scores}
-print("\nScores ponderados por prioridad del usuario:")
-print(final_scores)
+        if not all([name, lat, lon]):
+            continue
 
-ranked = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
-print("\nRanking de características según el barrio:")
-for cat, score in ranked:
-    print(f"{cat}: {score}")
+        # Clave única
+        key = (name, float(lat), float(lon))
 
-overall_score = sum(final_scores.values())
-print("\nScore total de la ciudad:", overall_score)
+    
+        if len(preview_list) < 5 and key not in seen_preview:
+            preview_list.append({"name": name, "lat": lat, "lon": lon})
+            seen_preview.add(key)
 
-# Llamar si quieres el filtro de seguridad
-security_scope()"""
+        # Si no es vivienda, no lo agregamos al JSON final, pero sí puede aparecer en preview
+        if not price_range or not tipo:
+            continue
+
+        # Parseo de rango
+        price_min, price_max = parse_price_range(price_range)
+        if price_min is None:
+            continue
+
+        tipo = str(tipo).lower()
+        if tipo == "casa":
+            propertyType = "Single Family"
+        elif tipo == "departamento":
+            propertyType = "Condo"
+        else:
+            continue
+
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "propertyType": propertyType,
+            "maxRadius": max_radius,
+            "lookupSubjectAttributes": False
+        }
+        headers = {"Authorization": f"Bearer {API_KEY}"}
+
+        try:
+            resp = requests.get(BASE_URL, params=params, headers=headers).json()
+            comps = resp.get("comparables", [])
+            precios = [p["estimatedValue"] for p in comps if "estimatedValue" in p]
+
+            if not precios:
+                continue
+
+            precio_promedio = sum(precios) / len(precios)
+
+            # FILTRO DE PRECIO
+            if price_min <= precio_promedio <= price_max:
+
+                if key not in seen_final:
+                    barrios_filtrados.append({
+                        "name": name,
+                        "latitude": lat,
+                        "longitude": lon,
+                        "price_avg_api": precio_promedio,
+                        "price_min_input": price_min,
+                        "price_max_input": price_max,
+                        "propertyType": propertyType
+                    })
+                    seen_final.add(key)
+
+        except Exception as e:
+            print(f"Error en API para {name}: {e}")
+            continue
+
+    # Guardar resultado final
+    with open(output_json, "w", encoding="utf-8") as f:
+        json.dump(barrios_filtrados, f, indent=4, ensure_ascii=False)
+
+    # Mostrar preview
+    if preview:   
+        print(" Primeros 5 elementos limpios (sin duplicados):")
+        for i, elem in enumerate(preview_list, start=1):
+            print(f"{i}. {elem}")
+
+    return barrios_filtrados
+
