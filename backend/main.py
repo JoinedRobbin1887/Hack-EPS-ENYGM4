@@ -1,8 +1,19 @@
 from fastapi import FastAPI
 import json
 from api_filtering import build_overpass_query, call_overpass, normalize_weights,ponder_characteristics, security_scope, parse_price_range,prepare_and_filter
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 def reord_priority_to_rank(prioritat_list: list):
@@ -15,6 +26,8 @@ def reord_priority_to_rank(prioritat_list: list):
     return new_prioritys
 
 
+
+
 @app.post("/formcomplite")
 async def get_form(form: dict):
     # Llegeix les claus de nivell superior enviades pel frontend
@@ -25,6 +38,8 @@ async def get_form(form: dict):
 
     movilitat = form["movilitat"]
     prioritat_list = form["prioritat"] # Rep la llista de categories ordenades
+
+    print(habitatge)
 
     prioritat_rang = reord_priority_to_rank(prioritat_list)
 
@@ -62,8 +77,8 @@ async def get_form(form: dict):
     except IOError as e:
         print("Error al escrivir el archivo")
 
-    price_range = habitatge["preus"]
-    tipe = habitatge["tipus"]
+    price_range = habitatge["precios"]
+    tipe = habitatge["tipos"]
     print("hola")
     prepare_and_filter(archivo_security_json, price_range=price_range, tipo=tipe)
 

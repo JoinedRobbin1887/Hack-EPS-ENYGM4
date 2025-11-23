@@ -50,7 +50,7 @@ def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
 def call_overpass(query, output_file="overpass_response.json"):
     if not query:
         return None
-
+    
     url = "https://overpass-api.de/api/interpreter"
     response = requests.post(url, data={"data": query})
     
@@ -119,7 +119,7 @@ def security_scope(
     
     print("limit")
     try:
-        crime_db = pd.read_csv(crime_file).sample(n=1580) # limitamos las comparaciones
+        crime_db = pd.read_csv(crime_file).sample(n=500) # limitamos las comparaciones
         
         crime_db["LOCATION"] = crime_db["LOCATION"].astype(str).fillna('').str.upper()
         
@@ -222,7 +222,8 @@ def prepare_and_filter(input_json="clean_security.json",
     for item in data:
 
         # Extraer nombre desde tags
-        name = item.get("name") or item.get("tags", {}).get("name")
+        name = item.get("addr:street") or item.get("tags", {}).get("addr:street")
+        #name = item.get("tags", {}).get("name")
         lat = item.get("lat")
         lon = item.get("lon")
 
