@@ -14,8 +14,8 @@ export function Habitatge({ precios, setPrecios, tipos, setTipos }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
         
         <PreferenceSelector 
-          label="RENT PRICES" 
-          options={["1600-2500$", "2500-4100$", "4100+"]} 
+          label="RENT PRICES ($)" 
+          options={["1600-2500", "2500-4100", "4100-10000"]} 
           selected={precios} 
           onChange={setPrecios} 
         />
