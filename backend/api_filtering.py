@@ -309,8 +309,6 @@ def prepare_and_filter(input_json="clean_security.json",
     with open(output_json, "w", encoding="utf-8") as f:
         json.dump(barrios_filtrados, f, indent=4, ensure_ascii=False)
 
-    print(f"\n JSON creado: {output_json} ({len(barrios_filtrados)} viviendas únicas encontradas)\n")
-
     # Mostrar preview
     if preview:
         print(" Primeros 5 elementos limpios (sin duplicados):")
