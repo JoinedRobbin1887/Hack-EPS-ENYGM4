@@ -125,14 +125,42 @@ export function StartPage() {
       return;
     }
     
-    // NOTA: S'ha de canviar el format de les claus (a anglès) abans de l'enviament.
-    const submissionData = {
-        preferences: preferences,
-        priorities: categoryOrder, 
+    // === 1. REGRUPACIÓ DE DADES PER COINCIDIR AMB LES CLAUS DEL BACKEND ===
+    // Convertim l'objecte 'preferences' a les claus de nivell superior que el backend espera
+    const preferencesGrouped = {
+        // Demografia i Economia
+        demografia: {
+            ingresos: preferences.ingresos, edad: preferences.edad, 
+            densitat: preferences.densitat, activitat: preferences.activitat
+        },
+        // Estil de Vida
+        vida: {
+            restaurants: preferences.restaurants, parcs: preferences.parcs, 
+            diversidad: preferences.diversidad, gyms: preferences.gyms, 
+            botigues: preferences.botigues
+        },
+        // Mobilitat (Utilitza 'movilitat' com a clau del backend)
+        movilitat: { 
+            accesPeu: preferences.accesPeu, transportPublic: preferences.transportPublic, 
+            carrilsBici: preferences.carrilsBici, autopistes: preferences.autopistes, 
+            accesibilitat: preferences.accesibilitatFisica
+        },
+        // Seguretat
+        seguretat: { seguridad: preferences.seguridad },
+        // Habitatge
+        habitatge: { precios: preferences.precios, tipos: preferences.tipos },
     };
 
-    // Aquest és el punt clau: la crida a l'API
-    const API_URL = 'http://gerard-pc.tail130bba.ts.net/formcomplite'; 
+    // 2. Creació de l'objecte d'enviament final (amb la clau 'prioritat' i les categories desagrupades)
+    const submissionData = {
+        ...preferencesGrouped, 
+        prioritat: categoryOrder, // Canviem 'priorities' a 'prioritat' (com al backend)
+    };
+    
+    // console.log("JSON FINAL ENVIAT:", submissionData); // Utilitza-ho per depurar
+
+    // Aquesta és la URL que utilitza el domini Tailscale
+    const API_URL = 'http://127.0.0.1:8000/formcomplite'; 
 
     try {
         const response = await fetch(API_URL, {
@@ -140,10 +168,14 @@ export function StartPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(submissionData),
         });
-        console.log(response);
+
+        console.log("Resposta API:", response); 
 
         if (!response.ok) {
-            throw new Error(`Error ${response.status}: No s'ha pogut obtenir la recomanació.`);
+            // Si la crida falla (Status 500, 404, etc.)
+            const errorText = await response.text(); 
+            console.error("Detalls de l'error del servidor:", errorText);
+            throw new Error(`Error ${response.status}: Failed to get recommendations. Server message: ${errorText.substring(0, 50)}...`);
         }
 
         const resultsData = await response.json();
@@ -153,12 +185,11 @@ export function StartPage() {
 
     } catch (error) {
         console.error("Error durant la crida a l'API:", error);
-        alert("Error de connexió al servidor. Si us plau, intenta-ho de nou.");
-        // Si hi ha error, naveguem a resultats amb dades buides
+        alert(`Error de connexió/servidor: ${error.message}. Contacta amb l'equip de backend.`);
+        // En cas d'error, naveguem a resultats amb dades buides
         navigate('/results', { state: { results: [], preferences: preferences, apiError: error.message } });
     }
   };
-
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-cornflower-blue-100 p-8">
