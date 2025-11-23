@@ -180,7 +180,7 @@ from config import API_REAL_STATE_KEY
 
 ########################## TESTING AND DEBUGGING ##########################
 
-user_priority = {
+""" user_priority = {
     "estilo_de_vida": 1,  
     "movilidad": 3,
     "vivienda": 2,
@@ -235,4 +235,4 @@ overall_score = sum(final_scores.values())
 print("\nScore total de la ciudad:", overall_score)
 
 # Llamar si quieres el filtro de seguridad
-security_scope()
+security_scope()"""

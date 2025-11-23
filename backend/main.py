@@ -1,8 +1,26 @@
 from fastapi import FastAPI
 from routers.forms import Demografia, EstilVida, Habitatge, Movilitat, Seguridad
 from api_filtering import build_overpass_query
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://100.70.184.27",
+    "http://localhost",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+)
 
 # Routern
 app.include_router(Demografia.router)
@@ -26,7 +44,7 @@ def get_form(form: dict):
     print(prioritat)
 
     new_priority = reord_priority(prioritat)
-    build_overpass_query(estatvidaMovilitat)
+    #build_overpass_query(estatvidaMovilitat)
     print(new_priority)
 
     return estatvidaMovilitat
