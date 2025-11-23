@@ -30,31 +30,39 @@ app.include_router(Movilitat.router)
 app.include_router(Seguridad.router)
 
 
+def reord_priority_to_rank(prioritat_list: list):
+    """Converteix la llista de prioritat ordenada (index 0 = màx) en un diccionari de rangs (1 = màx)."""
+    
+    new_prioritys = {
+        category: index + 1
+        for index, category in enumerate(prioritat_list)
+    }
+    return new_prioritys
+
+
 @app.post("/formcomplite")
 def get_form(form: dict):
-    demografia= form["demografia"]
-    estatvida= form["vida"]
-    seguretat= form["seguretat"]
-    habitatge= form["habitatge"]
-    movilitat= form["movilitat"]
-    prioritat= form["prioritat"]
+    # Llegeix les claus de nivell superior enviades pel frontend
+    demografia = form["demografia"]
+    estatvida = form["vida"]
+    seguretat = form["seguretat"]
+    habitatge = form["habitatge"]
+    movilitat = form["movilitat"]
+    prioritat_list = form["prioritat"] # Rep la llista de categories ordenades
 
-    estatvidaMovilitat = estatvida | movilitat
+    # Calcula el diccionari de prioritat amb rangs numèrics (1, 2, 3...)
+    prioritat_rang = reord_priority_to_rank(prioritat_list)
 
-    print(prioritat)
+    # Dades combinades (per al motor de filtratge)
+    estatvidaMovilitat = estatvida | movilitat 
 
-    new_priority = reord_priority(prioritat)
-    #build_overpass_query(estatvidaMovilitat)
-    print(new_priority)
-
-    return estatvidaMovilitat
-
-
-
-def reord_priority(prioritat: dict):
-    
-    new_prioritys = {}
-
-    for key, value in prioritat.items():
-        new_prioritys[key] = value + 1
-    return new_prioritys
+    # RESULTAT DE PROVA: Retorna la prioritat de rang per confirmar que la lògica del backend funciona
+    # Quan estigui implementat, això ha de retornar la llista de barris.
+    return [
+        {
+            "id": 1, 
+            "name": "Test Success (Backend Ready)", 
+            "score": 10.0, 
+            "metrics": [{"key": "Final Priority Order", "value": str(prioritat_rang), "weight": "Crucial"}]
+        }
+    ]
