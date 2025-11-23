@@ -1,39 +1,60 @@
+import os
 import requests
-from config import API_KEY_GOOGLE
-from config import cx
+from config import API_KEY
 
+# -----------------------------
+# Configuración
+# -----------------------------
+API_KEY = API_KEY 
+OUTPUT_FOLDER = "street_view_images"
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-API_KEY = API_KEY_GOOGLE
-CX = cx  # Custom Search Engine ID
+# -----------------------------
+# Función para generar URLs de Street View
+# -----------------------------
+def generate_street_view_urls(street_name, city_name=None):
+    """
+    Genera 4 URLs de Street View para una calle.
+    """
+    location = f"{street_name}"
+    if city_name:
+        location += f", {city_name}"
 
+    headings = [0, 90, 180, 270]
+    urls = []
 
-def get_images_from_coordinates(lat, lon, n=5):
-    query = f"{lat}, {lon} street view neighborhood photo"
+    for heading in headings:
+        url = (
+            f"https://maps.googleapis.com/maps/api/streetview"
+            f"?size=600x400&location={location}&heading={heading}&key={API_KEY}"
+        )
+        urls.append(url)
+    return urls
 
-    url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "key": API_KEY,
-        "cx": CX,
-        "searchType": "image",
-        "q": query,
-        "num": n
-    }
+# -----------------------------
+# Función para descargar imágenes
+# -----------------------------
+def download_images(urls, folder=OUTPUT_FOLDER):
+    for i, url in enumerate(urls):
+        response = requests.get(url)
+        if response.status_code == 200:
+            path = os.path.join(folder, f"street_{i}.jpg")
+            with open(path, "wb") as f:
+                f.write(response.content)
+            print(f"Descargada: {path}")
+        else:
+            print(f"No se pudo descargar {url}")
 
-    r = requests.get(url, params=params)
-    data = r.json()
+# -----------------------------
+# EJEMPLO
+# -----------------------------
+street_name = "Sunset Blvd"
+city_name = "Los Angeles"  # opcional
 
-    if "items" not in data:
-        print("No se encontraron imágenes para este sitio.")
-        print(data)  # útil para depurar si algo falla
-        return []
+urls = generate_street_view_urls(street_name, city_name)
+print("=== URLs de Street View ===")
+for u in urls:
+    print(u)
 
-    # Devolver solo los links a las imágenes
-    return [item["link"] for item in data["items"]]
-
-
-lat = 34.052235
-lon = -118.243683
-
-imagenes = get_images_from_coordinates(lat, lon, n=5)
-for img in imagenes:
-    print(img)
+# Descargar imágenes
+download_images(urls)
