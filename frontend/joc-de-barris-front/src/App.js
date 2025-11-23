@@ -1,26 +1,27 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import './App.css';
+
 import { Header } from './components/Header';
 import { ImageSlider } from './components/ImageSlider';
 import { StartPage } from './components/StartPage';
+import { Results } from './components/Results';   // <-- 📌 IMPORTANTE
 
 function App() {
   return (
     <Router>
       <Routes>
+        
         {/* Página inicial */}
         <Route
           path="/"
           element={
             <div className="relative h-screen flex items-center justify-center bg-cornflower-blue-200">
               <Header />
+              
               <div className="relative z-10 px-4 flex flex-col items-center"> 
                 <h1 className='text-4xl md:text-6xl font-extrabold text-cornflower-blue-900 uppercase tracking-wider mb-10'>
-                  THE GOOD {' '}
-                  <span className='text-cornflower-blue-700'>
-                    NEIGHBORHOOD
-                  </span>
+                  THE GOOD <span className='text-cornflower-blue-700'>NEIGHBORHOOD</span>
                 </h1>
 
                 {/* Botón START */}
@@ -41,8 +42,12 @@ function App() {
           }
         />
 
-        {/* Página StartPage */}
+        {/* Página de selección StartPage */}
         <Route path="/start" element={<StartPage />} />
+
+        {/* 📌 Página de Resultados */}
+        <Route path="/results" element={<Results />} />
+
       </Routes>
     </Router>
   );
