@@ -108,7 +108,7 @@ def security_scope(data_file="overpass_response.json"):
     security_db = pd.read_csv("security_db_scope.csv").sample(n=5000)
     location_matching_lapd = security_db["LOCATION"]
 
-   sta de locations :::: DICCIONARIO PREFIERO  idddddd- para saber el lugar y no
+
     
         
     
@@ -116,7 +116,7 @@ def security_scope(data_file="overpass_response.json"):
 
 ########################## TESTING AND DEBUGGING ##########################
 
-user_priority = {
+""" user_priority = {
     "estilo_de_vida": 1,  
     "movilidad": 3,
     "vivienda": 4,
@@ -164,4 +164,4 @@ for cat, score in ranked:
     print(f"{cat}: {score}")
 
 overall_score = sum(final_scores.values())
-print("\nScore total de la ciudad:", overall_score)
+print("\nScore total de la ciudad:", overall_score) """
