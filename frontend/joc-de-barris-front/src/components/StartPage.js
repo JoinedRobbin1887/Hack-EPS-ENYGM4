@@ -132,7 +132,31 @@ export function StartPage() {
     };
 
     // Aquest és el punt clau: la crida a l'API
-    const API_URL = ''; 
+    const API_URL = 'http://gerard-pc.tail130bba.ts.net/formcomplite'; 
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(submissionData),
+        });
+        console.log(response);
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: No s'ha pogut obtenir la recomanació.`);
+        }
+
+        const resultsData = await response.json();
+        
+        // Navegació a la pàgina de resultats
+        navigate('/results', { state: { results: resultsData, preferences: preferences } });
+
+    } catch (error) {
+        console.error("Error durant la crida a l'API:", error);
+        alert("Error de connexió al servidor. Si us plau, intenta-ho de nou.");
+        // Si hi ha error, naveguem a resultats amb dades buides
+        navigate('/results', { state: { results: [], preferences: preferences, apiError: error.message } });
+    }
   };
 
 

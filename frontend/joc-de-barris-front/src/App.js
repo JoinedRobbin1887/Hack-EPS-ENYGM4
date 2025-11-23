@@ -4,6 +4,7 @@ import './App.css';
 import { Header } from './components/Header';
 import { ImageSlider } from './components/ImageSlider';
 import { StartPage } from './components/StartPage';
+import { Results } from "./components/Results";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
 
         {/* Página StartPage */}
         <Route path="/start" element={<StartPage />} />
+        <Route path="/results" element={<Results />} />
       </Routes>
     </Router>
   );
