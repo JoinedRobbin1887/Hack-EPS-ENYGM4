@@ -27,7 +27,7 @@ def build_overpass_query(filters : dict[str, bool], city : str = "Los Angeles"):
     }
 
     for feature in query_struct.keys():
-        if filters[feature]:
+        if filters.get(feature):   # <-- evita error si un filtro es None
             blocks.append(query_struct[feature])
 
     # Si no hay ningún bloque activo
@@ -100,27 +100,90 @@ def ponder_characteristics(filters: dict, data):
 
 # 3- REDUCIMOS EL SCOPE - CON CARACTERISTICAS MÁS ESPECIFICAS ------------ SEGURIDAD --------------
 
-def security_scope(data_file="overpass_response.json"):
-    
-    with open(data_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
+def security_scope(
+    data_file="overpass_response.json",
+    crime_file="security_db_scope.csv",
+    threshold=1,
+    output_file="clean_security.json"
+):
+    print("--- Iniciando Filtro de Seguridad ---")
 
-    security_db = pd.read_csv("security_db_scope.csv").sample(n=5000)
-    location_matching_lapd = security_db["LOCATION"]
+    # 1. Cargar JSON de Overpass
+    try:
+        with open(data_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: No se encontró {data_file}")
+        return []
 
-   sta de locations :::: DICCIONARIO PREFIERO  idddddd- para saber el lugar y no
+    elements = data.get("elements", [])
     
+    # 2. Cargar y Limpiar Dataset de Crímenes
+    try:
+        crime_db = pd.read_csv(crime_file).sample(n=5000) # limitamos las comparaciones
         
-    
+        # LIMPIEZA DE DATOS CRÍTICOS:
+        # Convertimos la columna LOCATION a string y luego a MAYÚSCULAS
+        # .fillna('') evita errores si hay celdas vacías
+        crime_db["LOCATION"] = crime_db["LOCATION"].astype(str).fillna('').str.upper()
+        
+        print(f"Base de datos de crímenes cargada: {len(crime_db)} registros.")
+        
+    except FileNotFoundError:
+        print("Error: No se encontró el CSV de crímenes. Se asume todo como seguro.")
+        crime_db = pd.DataFrame() # DataFrame vacío
 
+    filtered = [] 
+
+    print(f"Procesando {len(elements)} elementos de OSM...")
+
+    for i, elem in enumerate(elements):
+        tags = elem.get("tags", {})
+        original_name = tags.get("name")
+
+        if not original_name:
+            filtered.append(elem)
+            continue
+
+        # 1. Normalizamos el nombre del POI a mayúsculas para coincidir con el CSV --- TENEMOS LA DTB CON ESTE FORMATO
+        name_upper = str(original_name).upper()
+
+        if not crime_db.empty:
+
+            matches = crime_db[crime_db["LOCATION"].str.contains(name_upper, regex=False)]
+            crime_freq = len(matches)
+        else:
+            crime_freq = 0
+
+        #DEBUGGING
+        if crime_freq > threshold:
+            print(f"  [ELIMINADO] {original_name} (Menciones en crímenes: {crime_freq})")
+        
+        # 3. Filtrar según el umbral
+        if crime_freq <= threshold:
+            filtered.append(elem)
+
+    print(f"--- Resultado Final ---")
+    print(f"Elementos originales: {len(elements)}")
+    print(f"Elementos filtrados (seguros): {len(filtered)}")
+
+    # Guardar JSON
+    data["elements"] = filtered
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+    return filtered
+
+# 4 FILTRO ---- REDUCIMOS SCOPE CAMPO - HABITATGE
 
 ########################## TESTING AND DEBUGGING ##########################
 
 user_priority = {
     "estilo_de_vida": 1,  
     "movilidad": 3,
-    "vivienda": 4,
-    "habitatge": 5
+    "vivienda": 2,
+    "habitatge": 5,
+    "Securitat": 2
 }
 
 user_filters = {
@@ -128,7 +191,7 @@ user_filters = {
     "parks": True,
     "cultural": False,
     "gyms": True,
-    "shops": None,
+    "shops": False,   
     "sidewalks": True,
     "public_transport": True,
     "accessibility": True
@@ -142,9 +205,12 @@ data = call_overpass(query)
 print("Query generada:")
 print(query)
 
-print("\nPrimeros 3 elementos encontrados:")
-for i, elem in enumerate(data["elements"][:3], start=1):
-    print(f"{i}: {elem}")
+if data and "elements" in data:
+    print("\nPrimeros 3 elementos encontrados:")
+    for i, elem in enumerate(data["elements"][:3], start=1):
+        print(f"{i}: {elem}")
+else:
+    print("No hay datos o fallo en la API.")
 
 weights = normalize_weights(user_priority)
 print("\nPesos normalizados según prioridades:")
@@ -165,3 +231,6 @@ for cat, score in ranked:
 
 overall_score = sum(final_scores.values())
 print("\nScore total de la ciudad:", overall_score)
+
+# Llamar si quieres el filtro de seguridad
+security_scope()
