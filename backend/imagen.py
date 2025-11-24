@@ -1,7 +1,8 @@
 import os
 import json
+from config import API_KEY
 
-API_KEY = "TU_API_KEY"
+API_KEY = API_KEY
 OUTPUT_JSON = "street_view_urls.json"
 
 
@@ -37,4 +38,3 @@ with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         indent=4
     )
 
-s
